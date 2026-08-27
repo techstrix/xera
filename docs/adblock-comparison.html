@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xera Browser — Ad Blocking: Old vs New</title>
+<style>
+  :root { --teal:#009688; --teal-bg:#E0F2F1; --teal-dark:#00695C; --gray:#616161; --bg:#FAFAFA; --card:#FFFFFF; --border:#E0E0E0; --red:#E53935; --green:#2E7D32; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:#212121; line-height:1.6; }
+  header { background:linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); color:white; padding:32px 24px; }
+  header h1 { margin:0; font-size:28px; letter-spacing:-0.02em; }
+  header p { margin:8px 0 0; opacity:0.92; max-width:800px; }
+  .meta { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+  .pill { background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.28); padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
+  .pill strong { color:white; }
+  .container { max-width:1100px; margin:0 auto; padding:24px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:900px){ .grid2{grid-template-columns:1fr} }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:0 1px 2px rgba(0,0,0,0.06); }
+  .card h2 { margin:0 0 8px; font-size:18px; }
+  .card h3 { margin:16px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gray); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+  .old { background:#FFEBEE; color:var(--red); border:1px solid #FFCDD2; }
+  .new { background:#E8F5E9; color:var(--green); border:1px solid #C8E6C9; }
+  .neutral { background:var(--teal-bg); color:var(--teal-dark); border:1px solid #B2DFDB; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { background:#F5F5F5; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; }
+  tr:hover td { background:#FAFAFA; }
+  .yes { color:var(--green); font-weight:700; }
+  .no { color:var(--red); font-weight:700; }
+  .arch { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; background:#263238; color:#ECEFF1; padding:14px; border-radius:8px; overflow:auto; line-height:1.5; }
+  .legend { display:flex; gap:12px; flex-wrap:wrap; font-size:12px; margin:12px 0; }
+  .cta { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0; }
+  .btn { display:inline-block; padding:10px 16px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; border:1px solid var(--border); }
+  .btn-primary { background:var(--teal); color:white; border-color:var(--teal); }
+  .btn-secondary { background:white; color:#212121; }
+  footer { padding:24px; text-align:center; font-size:12px; color:var(--gray); }
+  .k { font-family:ui-monospace, monospace; font-size:12px; background:#F5F5F5; padding:1px 6px; border-radius:4px; border:1px solid var(--border); }
+  ul { margin:8px 0; padding-left:20px; }
+  .diff { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; text-align:center; font-weight:700; }
+  .diff span { padding:8px; border-radius:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Xera Browser — Ad Blocking: Old vs New</h1>
+  <p>How we went from a single EasyList toggle to a uBlock-compatible, TV-friendly shields system — without rewriting the wheel.</p>
+  <div class="meta">
+    <span class="pill">Package: <strong>dev.xera.browser</strong></span>
+    <span class="pill">Engine: <strong>com.github.truefedex:ad-block (AdBlockClient)</strong></span>
+    <span class="pill">Version: <strong>2.1.6-xera-ublock1</strong></span>
+    <span class="pill">Policy: <strong>master toggle stays single source of truth</strong></span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>TL;DR</h2>
+    <div class="diff">
+      <span class="old">Old: 1 list, 1 URL field, 30-day cache, instant toggle, no insight</span>
+      <span>→</span>
+      <span class="new">New: 5+ uBlock defaults, per-list switches, 7-day cache, overlay with metrics + SHIELDS ON pill</span>
+    </div>
+    <p>Old was <span class="k">EasyList only</span> → new is <span class="k">EasyList + EasyPrivacy + Peter Lowe + Badware + uBO filters</span> concatenated and fed to the same <span class="k">AdBlockClient</span>. No new native engine, just a smarter data + UI layer on the TV Bro codebase.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="../releases/xera.apk">Download xera.apk (12M)</a>
+      <a class="btn btn-secondary" href="https://github.com/techstrix/xera">View on GitHub</a>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="badge old">OLD</span> Single-list strategy</h2>
+      <h3>Data</h3>
+      <ul>
+        <li>One URL in <span class="k">Config.adBlockListURL</span> → <span class="k">DEFAULT_ADBLOCK_LIST_URL = https://easylist.to/easylist/easylist.txt</span></li>
+        <li>No per-list control; user could paste one custom URL only</li>
+        <li><span class="k">AdblockModel.kt:36</span> fetches one file, <span class="k">client.parse(easyList)</span></li>
+        <li>Cache: <span class="k">filesDir/adblock_ser.dat</span> via <span class="k">client.serialize()</span> valid 30 days (<span class="k">AUTO_UPDATE_INTERVAL_MINUTES = 43200</span>)</li>
+      </ul>
+      <h3>Blocking</h3>
+      <ul>
+        <li><span class="k">WebViewEx.kt:363</span> <span class="k">shouldInterceptRequest</span> → if <span class="k">isAdBlockingEnabled()</span> → <span class="k">isAd(request, baseUri)</span> → <span class="k">client.matches(url, filterOption, baseHost)</span></li>
+        <li><span class="k">mapRequestToFilterOption()</span> maps <span class="k">image/css/script/object</span> via MIME + extension, else <span class="k">UNKNOWN</span></li>
+      </ul>
+      <h3>UI</h3>
+      <ul>
+        <li>Bottom bar <span class="k">ibAdBlock</span> → instant <span class="k">toggleAdBlockForTab()</span> flip, no confirmation</li>
+        <li>Settings → Main → single <span class="k">Switch scAdblock</span> + one <span class="k">EditText etAdBlockerListUrl</span> + Refresh</li>
+        <li>No total stats, no per-page context, no visible brand beyond “TV Bro”</li>
+      </ul>
+      <div class="arch">WebView
+  → WebViewClient.shouldInterceptRequest
+      → MainActivity.isAd() 
+          → AdblockModel.isAd() 
+              → AdBlockClient.matches() 
+                  → single easylist.txt
+  Toggle: ibAdBlock → toggleAdBlockForTab() → immediate
+  Settings: scAdblock + etAdBlockerListUrl (1)</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="badge new">NEW</span> uBlock-style multi-list</h2>
+      <h3>Data</h3>
+      <ul>
+        <li>5 defaults in <span class="k">Config.kt:51</span> <span class="k">DEFAULT_UBLOCK_LIST_NAMES/URLS</span>:
+          <br><small>EasyList, EasyPrivacy, Peter Lowe, Badware (<span class="k">.../uAssets/.../badware.txt</span>), uBO filters (<span class="k">.../filters.txt</span>)</small></li>
+        <li>+ 2 extras opt-in: Privacy, Annoyances</li>
+        <li>Enabled set <span class="k">Config.adBlockEnabledLists: Set&lt;String&gt;</span> (<span class="k">ADBLOCK_ENABLED_LISTS_KEY</span>) — defaults all 5, persisted as <span class="k">StringSet</span></li>
+        <li><span class="k">AdblockModel.kt:36</span> concatenates all enabled URLs → one <span class="k">combinedText</span> → <span class="k">client.parse(combinedText)</span>; tolerates single-list failure, falls back to cache</li>
+        <li>Cache same <span class="k">adblock_ser.dat</span> but 7-day refresh, plus <span class="k">lastError</span>/<span class="k">blockedCount</span> observables; <span class="k">adBlockStatsBlocked</span> persisted</li>
+      </ul>
+      <h3>Blocking</h3>
+      <ul>
+        <li>Same <span class="k">WebViewEx:363</span> hook + <span class="k">client.matches()</span> — now matcher sees ~5× rules, including hosts-format Peter Lowe</li>
+        <li>Stats increment on block → total persisted</li>
+      </ul>
+      <h3>UI</h3>
+      <ul>
+        <li>Bottom bar <span class="k">ibAdBlock</span> → <span class="k">showAdBlockOverlay()</span> instead of instant toggle</li>
+        <li>Overlay <span class="k">AdBlockOverlayDialog.kt:17</span> + <span class="k">dialog_adblock_overlay.xml:1</span> (uses <span class="k">R.style.SettingsDialog</span> — TV Bro default style, will be redesigned): <strong>SHIELDS ON — Xera</strong>, blocked on page / total, lists enabled count, last update, host, Switch, Manage → Settings</li>
+        <li>Subtle brand pill <span class="k">tvShieldsOn</span> (<span class="k">shields_on_bg.xml</span>) above bottom panel, <span class="k">GONE</span> when off — visible but not shouting</li>
+        <li>Settings → dedicated card (<span class="k">MainSettingsView.kt:244</span> <span class="k">initAdBlockConfigUI</span> → <span class="k">buildUblockListsUI()</span>) with CheckBoxes per list + custom URL field + stats/error</li>
+      </ul>
+      <div class="arch">WebView
+  → shouldInterceptRequest
+      → isAd() → AdblockModel.isAd() (+incrementAdBlockStats)
+          → client.matches(url, filterOption, baseHost)
+              → concatenated: easylist + easyprivacy + yoyo + badware + filters [+ extras] [+ custom]
+  Toggle: ibAdBlock → AdBlockOverlayDialog (metrics + Switch) → onToggle → tab.adblock / config.adBlockEnabled
+  Indicator: tvShieldsOn pill (SHIELDS ON — Xera)
+  Settings: master Switch + llUblockLists CheckBoxes + etAdBlockerListUrl</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Side-by-side</h2>
+    <table>
+      <tr><th>Aspect</th><th><span class="badge old">OLD</span></th><th><span class="badge new">NEW</span></th></tr>
+      <tr><td>Filter source</td><td><span class="no">1</span> — EasyList only</td><td><span class="yes">5 defaults + 2 extras + custom</span> — uBlock origin defaults (trust-first, verbatim upstream)</td></tr>
+      <tr><td>Config</td><td><span class="k">adBlockListURL: String</span></td><td><span class="k">adBlockEnabledLists: Set&lt;String&gt;</span> + <span class="k">adBlockListURL</span> (legacy migrated via <span class="k">migrateLegacyAdBlockUrlIfNeeded()</span>) + <span class="k">adBlockStatsBlocked</span></td></tr>
+      <tr><td>Fetch</td><td>One <span class="k">URL.openConnection().inputStream</span></td><td>Loop <span class="k">resolveEnabledListUrls()</span> → 15s/30s timeouts, per-list try/catch, concatenated <span class="k">StringBuilder</span></td></tr>
+      <tr><td>Cache</td><td>30 days, else re-download one</td><td>7 days, tolerates partial failure, fallback to <span class="k">deserialize()</span></td></tr>
+      <tr><td>Engine</td><td colspan="2"><span class="k">com.github.truefedex:ad-block AdBlockClient</span> — same .so, no new JNI; new just feeds more rules</td></tr>
+      <tr><td>Blocking fidelity</td><td>Basic EasyList syntax</td><td>Same syntax but 5× coverage → hosts + badware cover trackers/malware that single EasyList missed</td></tr>
+      <tr><td>Stats</td><td class="no">Tab badge only (<span class="k">tvBlockedAdCounter</span>)</td><td class="yes">Tab badge + overlay total + persisted total + last update + host</td></tr>
+      <tr><td>Toggle UX</td><td>Instant flip on <span class="k">ibAdBlock</span>, no context</td><td>Overlay with Switch, dismiss by tapping outside, Manage → filter lists</td></tr>
+      <tr><td>Brand</td><td>TV Bro</td><td>Xera Browser (<span class="k">dev.xera.browser</span>, teal shield icon, <span class="k">SHIELDS ON — Xera</span> pill); fork notice retains “based on TV Bro” for license</td></tr>
+      <tr><td>License</td><td>TV Bro BSD + same appId/icon</td><td>Fork compliant: new <span class="k">applicationId</span>, new <span class="k">ic_launcher</span> in 5 densities, About fork notice, <span class="k">NOTICE.md</span></td></tr>
+      <tr><td>Files touched</td><td>3</td><td>~20 (see below)</td></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>New UI in action</h2>
+      <h3>Ad button → Overlay (default TV Bro style)</h3>
+      <ul>
+        <li>Style: <span class="k">R.style.SettingsDialog</span> — same card as Settings, will be redesigned in upcoming TV Bro redesign you plan</li>
+        <li>Behavior: click <span class="k">ibAdBlock</span> → dialog, Switch toggles <span class="k">tab.adblock</span> or <span class="k">config.adBlockEnabled</span>, metrics refresh live, outside tap dismisses</li>
+        <li>Entry: <span class="k">MainActivity.kt:595</span> <span class="k">showAdBlockOverlay()</span></li>
+      </ul>
+      <h3>SHIELDS ON pill</h3>
+      <ul>
+        <li>Layout: <span class="k">activity_main.xml:224</span> <span class="k">tvShieldsOn</span> above <span class="k">llBottomPanel</span>, <span class="k">shields_on_bg.xml</span> (teal 12dp pill)</li>
+        <li>Logic: <span class="k">MainActivity.kt:581</span> <span class="k">onWebViewUpdated()</span> → <span class="k">VISIBLE</span> if blocked, <span class="k">GONE</span> if off — you know it's Xera, not a clone, without shouting</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Why not a new engine?</h2>
+      <p>We kept <span class="k">ad-block 0.0.4 .so</span> to stay on the <b>TV Bro Kotlin codebase</b> you asked to keep. Swapping to <span class="k">mlm-games/adblock-rust</span> (better <span class="k">$redirect</span>/cosmetics) is a drop-in at the same seam (<span class="k">WebViewEx.kt:363</span> + <span class="k">AdblockModel</span>) — no browser rewrite, React only for Settings if you want later.</p>
+      <div class="legend">
+        <span class="badge neutral">Kept: master toggle single source of truth</span>
+        <span class="badge neutral">Expanded: dedicated card + overlay</span>
+      </div>
+      <h3>Build</h3>
+      <ul>
+        <li><span class="k">./gradlew :app:assembleGenericGeckoExcludedDebug</span> → 12M APK (was 11M)</li>
+        <li>Output: <span class="k">releases/xera.apk</span> + <span class="k">docs/apk/xera.apk</span> (single apk in releases, as requested)</li>
+        <li>Verified: <span class="k">aapt dump badging</span> <span class="k">dev.xera.browser</span> <span class="k">Xera Browser</span>, unitTests pass</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Files that implement the new strategy</h2>
+    <table>
+      <tr><th>File</th><th>What</th></tr>
+      <tr><td><span class="k">app/common/src/main/java/com/phlox/tvwebbrowser/Config.kt:51</span></td><td>Default uBlock arrays + <span class="k">adBlockEnabledLists</span> + stats</td></tr>
+      <tr><td><span class="k">app/src/main/java/com/phlox/tvwebbrowser/activity/main/AdblockModel.kt:19</span></td><td>Multi-list concat + <span class="k">blockedCount</span>/<span class="k">lastError</span></td></tr>
+      <tr><td><span class="k">app/src/main/java/com/phlox/tvwebbrowser/webengine/webview/WebViewEx.kt:363</span></td><td>Interception point (unchanged hook, richer data)</td></tr>
+      <tr><td><span class="k">app/src/main/java/com/phlox/tvwebbrowser/activity/main/MainActivity.kt:581</span></td><td>Pill + overlay wiring</td></tr>
+      <tr><td><span class="k">app/src/main/java/com/phlox/tvwebbrowser/activity/main/dialogs/AdBlockOverlayDialog.kt:17</span></td><td>New overlay dialog</td></tr>
+      <tr><td><span class="k">app/src/main/res/layout/dialog_adblock_overlay.xml:1</span></td><td>Overlay layout</td></tr>
+      <tr><td><span class="k">app/src/main/res/layout/activity_main.xml:224</span></td><td>SHIELDS ON pill</td></tr>
+      <tr><td><span class="k">app/src/main/java/com/phlox/tvwebbrowser/activity/main/dialogs/settings/MainSettingsView.kt:244</span></td><td>Dedicated card with per-list CheckBoxes</td></tr>
+      <tr><td><span class="k">app/src/main/res/layout/view_settings_main.xml:212</span></td><td>Card container <span class="k">llUblockLists</span>/<span class="k">tvAdBlockStats</span></td></tr>
+    </table>
+    <p style="font-size:12px; color:var(--gray);">Releases folder now contains just one APK as requested: <span class="k">releases/xera.apk</span> (fresh build after overlay + rebrand, not the old 11M).</p>
+  </div>
+</div>
+
+<footer>
+  Xera Browser — fork of TV Bro by Fedir Tsapana (https://github.com/truefedex/tv-bro) • uBlock filters from EasyList / Peter Lowe / uAssets • Engine: Brave ad-block
+</footer>
+</body>
+</html>
