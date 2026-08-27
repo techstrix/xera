@@ -7,9 +7,9 @@ android {
     namespace = "com.phlox.tvwebbrowser"
 
     defaultConfig {
-        applicationId = "com.phlox.tvwebbrowser"
+        applicationId = "dev.xera.browser"
         versionCode = 69
-        versionName = "2.1.6"
+        versionName = "2.1.6-xera-ublock1"
 
         javaCompileOptions {
             annotationProcessorOptions {

@@ -213,34 +213,82 @@
       android:id="@+id/llAdBlockerDetails"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="20dp"
+      android:layout_marginTop="8dp"
       android:orientation="vertical"
-      android:paddingTop="5dp"
+      android:padding="12dp"
+      android:background="@drawable/settings_card_bg"
       >
+    <!-- Dedicated Ad Blocking Section — expands master toggle, TV-friendly -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/adblock_section_title"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:paddingBottom="4dp"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/adblock_section_desc"
+        android:textSize="12sp"
+        android:alpha="0.7"
+        android:paddingBottom="8dp"
+        />
+    <!-- uBlock defaults — checkboxes generated in code inside this container -->
+    <LinearLayout
+        android:id="@+id/llUblockLists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/adblock_custom_url_label"
+        android:textSize="13sp"
+        />
     <EditText
         android:id="@+id/etAdBlockerListUrl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/url"
+        android:hint="@string/adblock_custom_url_hint"
         android:importantForAutofill="no"
         android:inputType="textUri"
+        android:nextFocusDown="@+id/btnAdBlockerUpdate"
         />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:orientation="horizontal">
-      <TextView
-          android:id="@+id/tvAdBlockerListInfo"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:layout_marginStart="5dp"
+      <LinearLayout
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:gravity="center_vertical"
-          android:lines="1"
-          tools:text="Last update: never"
-          />
+          android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvAdBlockerListInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:gravity="center_vertical"
+            android:lines="1"
+            tools:text="Last update: never"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/tvAdBlockStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            android:alpha="0.7"
+            tools:text="0 blocked (total)"
+            />
+      </LinearLayout>
       <ImageButton
           android:id="@+id/btnAdBlockerUpdate"
           android:layout_width="48dp"
@@ -249,6 +297,8 @@
           android:contentDescription="@string/update_ad_blocker_list"
           android:nextFocusDown="@+id/spTheme"
           android:src="@drawable/ic_refresh_grey_900_24dp"
+          android:background="?attr/selectableItemBackgroundBorderless"
+          android:focusable="true"
           />
       <ProgressBar
           android:id="@+id/pbAdBlockerListLoading"
@@ -259,6 +309,15 @@
           android:visibility="gone"
           />
     </LinearLayout>
+    <TextView
+        android:id="@+id/tvAdBlockerError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF6B6B"
+        android:visibility="gone"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp"
+        />
   </LinearLayout>
 
   <LinearLayout

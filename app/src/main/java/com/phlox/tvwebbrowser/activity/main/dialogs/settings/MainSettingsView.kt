@@ -242,22 +242,35 @@ class MainSettingsView @JvmOverloads constructor(
     }
 
     private fun initAdBlockConfigUI() {
+        // Master toggle — single source of truth, preserved
         vb.scAdblock.isChecked = config.adBlockEnabled
-        vb.etAdBlockerListUrl.setText(config.adBlockListURL.value)
+        vb.scAdblock.setOnCheckedChangeListener { _, isChecked ->
+            config.adBlockEnabled = isChecked
+            vb.llAdBlockerDetails.visibility = if (isChecked) VISIBLE else GONE
+        }
         vb.llAdblock.setOnClickListener {
             vb.scAdblock.isChecked = !vb.scAdblock.isChecked
-            config.adBlockEnabled = vb.scAdblock.isChecked
-            vb.llAdBlockerDetails.visibility = if (vb.scAdblock.isChecked) VISIBLE else GONE
         }
         vb.llAdBlockerDetails.visibility = if (config.adBlockEnabled) VISIBLE else GONE
 
+        // Dedicated section: uBlock defaults (expands master)
+        vb.etAdBlockerListUrl.setText(config.adBlockListURL.value)
+        buildUblockListsUI()
+
         adblockModel.clientLoading.subscribe(activity as FragmentActivity) {
+            updateAdBlockInfo()
+        }
+        adblockModel.blockedCount.subscribe(activity as FragmentActivity) {
+            updateAdBlockInfo()
+        }
+        adblockModel.lastError.subscribe(activity as FragmentActivity) {
             updateAdBlockInfo()
         }
 
         vb.btnAdBlockerUpdate.setOnClickListener {
             if (adblockModel.clientLoading.value) return@setOnClickListener
             saveAdBlockListUrl()
+            saveUblockEnabledLists()
             adblockModel.loadAdBlockList(true)
             it.isEnabled = false
         }
@@ -265,9 +278,92 @@ class MainSettingsView @JvmOverloads constructor(
         updateAdBlockInfo()
     }
 
+    private fun buildUblockListsUI() {
+        vb.llUblockLists.removeAllViews()
+        val enabled = config.adBlockEnabledLists
+        // Default lists
+        for (i in Config.DEFAULT_UBLOCK_LIST_NAMES.indices) {
+            val name = Config.DEFAULT_UBLOCK_LIST_NAMES[i]
+            val url = Config.DEFAULT_UBLOCK_LIST_URLS[i]
+            val cb = android.widget.CheckBox(context).apply {
+                text = name
+                isChecked = enabled.contains(url)
+                isFocusable = true
+                isFocusableInTouchMode = true
+                textSize = 14f
+                setPadding(8, 12, 8, 12)
+                // TV D-pad focus visuals come from default selector
+            }
+            cb.setOnCheckedChangeListener { _, isChecked ->
+                val cur = config.adBlockEnabledLists.toMutableSet()
+                if (isChecked) cur.add(url) else cur.remove(url)
+                config.adBlockEnabledLists = cur
+            }
+            vb.llUblockLists.addView(cb)
+        }
+        // Extra opt-in
+        val extraHeader = android.widget.TextView(context).apply {
+            text = context.getString(R.string.adblock_extra_lists_header)
+            textSize = 12f
+            alpha = 0.6f
+            setPadding(8, 16, 8, 4)
+        }
+        vb.llUblockLists.addView(extraHeader)
+        for (i in Config.EXTRA_UBLOCK_LIST_NAMES.indices) {
+            val name = Config.EXTRA_UBLOCK_LIST_NAMES[i]
+            val url = Config.EXTRA_UBLOCK_LIST_URLS[i]
+            val cb = android.widget.CheckBox(context).apply {
+                text = name
+                isChecked = enabled.contains(url)
+                isFocusable = true
+                isFocusableInTouchMode = true
+                textSize = 14f
+                setPadding(8, 12, 8, 12)
+            }
+            cb.setOnCheckedChangeListener { _, isChecked ->
+                val cur = config.adBlockEnabledLists.toMutableSet()
+                if (isChecked) cur.add(url) else cur.remove(url)
+                config.adBlockEnabledLists = cur
+            }
+            vb.llUblockLists.addView(cb)
+        }
+        // Show custom if present and not in known lists
+        val customs = enabled.filter { it !in Config.DEFAULT_UBLOCK_LIST_URLS && it !in Config.EXTRA_UBLOCK_LIST_URLS }
+        if (customs.isNotEmpty()) {
+            val customHeader = android.widget.TextView(context).apply {
+                text = context.getString(R.string.adblock_custom_active, customs.size.toString())
+                textSize = 12f
+                alpha = 0.6f
+                setPadding(8, 12, 8, 4)
+            }
+            vb.llUblockLists.addView(customHeader)
+        }
+    }
+
+    private fun saveUblockEnabledLists() {
+        // Already saved on checkbox toggle; just ensure at least one remains enabled
+        if (config.adBlockEnabledLists.isEmpty()) {
+            config.adBlockEnabledLists = Config.DEFAULT_UBLOCK_LIST_URLS.toSet()
+            buildUblockListsUI()
+        }
+    }
+
     private fun saveAdBlockListUrl() {
         val value = vb.etAdBlockerListUrl.text.toString().trim()
-        config.adBlockListURL.value = value.ifEmpty { Config.DEFAULT_ADBLOCK_LIST_URL }
+        if (value.isEmpty()) {
+            // keep custom field but don't overwrite legacy if empty
+            return
+        }
+        // If user entered a custom URL not already in enabled set, add it
+        if (value != Config.DEFAULT_ADBLOCK_LIST_URL && value.startsWith("http")) {
+            val cur = config.adBlockEnabledLists.toMutableSet()
+            cur.add(value)
+            config.adBlockEnabledLists = cur
+            config.adBlockListURL.value = value
+            buildUblockListsUI()
+        } else if (value.isNotEmpty()) {
+            config.adBlockListURL.value = value
+        }
     }
 
     private fun updateAdBlockInfo() {
@@ -277,9 +373,17 @@ class MainSettingsView @JvmOverloads constructor(
             dateFormat.format(Date(config.adBlockListLastUpdate))
         val infoText = "${context.getString(R.string.last_update)}: $lastUpdate"
         vb.tvAdBlockerListInfo.text = infoText
+        vb.tvAdBlockStats.text = context.getString(R.string.adblock_stats_s, config.adBlockStatsBlocked.toString())
         val loadingAdBlockList = adblockModel.clientLoading.value
         vb.btnAdBlockerUpdate.visibility = if (loadingAdBlockList) View.GONE else View.VISIBLE
         vb.pbAdBlockerListLoading.visibility = if (loadingAdBlockList) View.VISIBLE else View.GONE
+        val err = adblockModel.lastError.value
+        if (err != null && !loadingAdBlockList) {
+            vb.tvAdBlockerError.text = err
+            vb.tvAdBlockerError.visibility = View.VISIBLE
+        } else {
+            vb.tvAdBlockerError.visibility = View.GONE
+        }
     }
 
     private fun initUAStringConfigUI(context: Context) {

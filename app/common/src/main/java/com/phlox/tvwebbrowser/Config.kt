@@ -41,6 +41,8 @@ class Config(val prefs: SharedPreferences) {
         const val ADBLOCK_ENABLED_PREF_KEY = "adblock_enabled"
         const val ADBLOCK_LAST_UPDATE_LIST_KEY = "adblock_last_update"
         const val ADBLOCK_LIST_URL_KEY = "adblock_list_url"
+        const val ADBLOCK_ENABLED_LISTS_KEY = "adblock_enabled_lists"
+        const val ADBLOCK_STATS_BLOCKED_KEY = "adblock_stats_blocked"
         const val APP_WEB_EXTENSION_VERSION_KEY = "app_web_extension_version"
         const val NOTIFICATION_ABOUT_ENGINE_CHANGE_SHOWN_KEY = "notification_about_engine_change_shown"
         const val APP_VERSION_CODE_MARK_KEY = "app_version_code_mark"
@@ -49,6 +51,31 @@ class Config(val prefs: SharedPreferences) {
         const val ENGINE_WEB_VIEW = "WebView"
 
         const val DEFAULT_ADBLOCK_LIST_URL = "https://easylist.to/easylist/easylist.txt"
+
+        // uBlock Origin defaults — trust-first, shipping exact upstream lists
+        val DEFAULT_UBLOCK_LIST_NAMES = arrayOf(
+            "EasyList",
+            "EasyPrivacy",
+            "Peter Lowe's Ad server list",
+            "Online Malicious URL Blocklist",
+            "uBlock filters"
+        )
+        val DEFAULT_UBLOCK_LIST_URLS = arrayOf(
+            "https://easylist.to/easylist/easylist.txt",
+            "https://easylist.to/easylist/easyprivacy.txt",
+            "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=1&mimetype=plaintext",
+            "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+            "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt"
+        )
+        // Extra uBlock lists kept disabled by default but available as opt-in (conservative)
+        val EXTRA_UBLOCK_LIST_NAMES = arrayOf(
+            "uBlock – Privacy",
+            "uBlock – Annoyances"
+        )
+        val EXTRA_UBLOCK_LIST_URLS = arrayOf(
+            "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+            "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt"
+        )
         val SearchEnginesTitles = arrayOf("Google", "Bing", "Yahoo!", "DuckDuckGo", "Yandex", "Startpage", "Custom")
         val SearchEnginesNames = arrayOf("google", "bing", "yahoo", "ddg", "yandex", "startpage", "custom")
         val SearchEnginesURLs = listOf("https://www.google.com/search?q=[query]", "https://www.bing.com/search?q=[query]",
@@ -224,6 +251,28 @@ class Config(val prefs: SharedPreferences) {
         }
 
     var adBlockListURL = ObservableStringPreference(DEFAULT_ADBLOCK_LIST_URL, ADBLOCK_LIST_URL_KEY)
+
+    // Multi-list support — enabled set stored as StringSet (subset of DEFAULT_UBLOCK_LIST_URLS + EXTRA...). If missing, all defaults enabled.
+    var adBlockEnabledLists: Set<String>
+        get() = prefs.getStringSet(ADBLOCK_ENABLED_LISTS_KEY, null) ?: DEFAULT_UBLOCK_LIST_URLS.toSet()
+        set(value) { prefs.edit().putStringSet(ADBLOCK_ENABLED_LISTS_KEY, value).apply() }
+
+    // Backwardscompat: migrate legacy single URL if user had custom value different from default
+    fun migrateLegacyAdBlockUrlIfNeeded() {
+        if (!prefs.contains(ADBLOCK_ENABLED_LISTS_KEY) && prefs.contains(ADBLOCK_LIST_URL_KEY)) {
+            val legacy = prefs.getString(ADBLOCK_LIST_URL_KEY, null)
+            if (legacy != null && legacy != DEFAULT_ADBLOCK_LIST_URL && !DEFAULT_UBLOCK_LIST_URLS.contains(legacy)) {
+                // Keep legacy as custom; include defaults + legacy by merging into enabled set + custom
+                val merged = (DEFAULT_UBLOCK_LIST_URLS.toSet() + legacy)
+                prefs.edit().putStringSet(ADBLOCK_ENABLED_LISTS_KEY, merged).apply()
+            }
+        }
+    }
+
+    var adBlockStatsBlocked: Long
+        get() = prefs.getLong(ADBLOCK_STATS_BLOCKED_KEY, 0L)
+        set(value) { prefs.edit().putLong(ADBLOCK_STATS_BLOCKED_KEY, value).apply() }
+    fun incrementAdBlockStats() { adBlockStatsBlocked = adBlockStatsBlocked + 1 }
 
     var adBlockListLastUpdate: Long
         get() = prefs.getLong(ADBLOCK_LAST_UPDATE_LIST_KEY, 0)

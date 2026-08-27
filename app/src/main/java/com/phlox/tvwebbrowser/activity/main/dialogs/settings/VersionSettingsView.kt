@@ -65,6 +65,21 @@ class VersionSettingsView @JvmOverloads constructor(
             loadUrl(vb.tvLink.text.toString())
         }
 
+        // License compliance: modified binary must show it uses TV Bro sources
+        // Add fork notice below link — TV Bro license clause 2
+        val forkNotice = android.widget.TextView(context).apply {
+            text = context.getString(R.string.tvbro_fork_notice)
+            textSize = 11f
+            alpha = 0.7f
+            setPadding(0, 8, 0, 8)
+            isFocusable = true
+        }
+        // Insert after tvLink — find parent and add
+        (vb.tvLink.parent as? android.view.ViewGroup)?.let { parent ->
+            val idx = parent.indexOfChild(vb.tvLink)
+            if (idx != -1) parent.addView(forkNotice, idx + 1)
+        }
+
         vb.tvSupportAuthor.text = context.getString(R.string.support_the_author)
         vb.tvSupportAuthor.setOnClickListener {
             loadUrl(URL_SUPPORT_AUTHOR)
