@@ -1,4 +1,4 @@
-# TV Bro
+# Xera Browser
 
 Simple web browser optimized to use with TV remote
 

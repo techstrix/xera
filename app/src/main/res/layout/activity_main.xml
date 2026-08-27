@@ -221,6 +221,26 @@
             tools:text="1" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     
+    <TextView
+        android:id="@+id/tvShieldsOn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/llBottomPanel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/shields_on_bg"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="SHIELDS ON — Xera"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#009688"
+        android:visibility="gone"
+        android:alpha="0.95"
+        tools:visibility="visible"/>
+
     <com.phlox.tvwebbrowser.activity.main.view.CursorMenuView
         android:id="@+id/vCursorMenu"
         android:layout_width="match_parent"

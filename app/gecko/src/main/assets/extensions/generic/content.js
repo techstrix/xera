@@ -1,7 +1,7 @@
 // This is a leftover from the removal of the abandoned "text selection" feature.
 // I'll leave it here for now as a framework for future extension-based features.
 
-console.log("TV Bro generic content extension loaded");
+console.log("Xera Browser generic content extension loaded");
 
 window.addEventListener('load', function () {
     //document.body.style.userSelect = "none";

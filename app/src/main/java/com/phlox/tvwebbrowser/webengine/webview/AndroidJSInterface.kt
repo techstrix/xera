@@ -104,7 +104,7 @@ class AndroidJSInterface(private val webEngine: WebViewWebEngine) {
         val callback = webEngine.callback ?: return
         val finalFileName = fileName ?: DownloadUtils.guessFileName(url, null, mimetype)
         callback.onDownloadRequested(url, "",
-                finalFileName, "TV Bro",
+                finalFileName, "Xera Browser",
             mimetype, Download.OperationAfterDownload.NOP, base64BlobData)
     }
 

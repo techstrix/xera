@@ -16,7 +16,7 @@ class Config(val prefs: SharedPreferences) {
         const val LAST_UPDATE_USER_NOTIFICATION_TIME_KEY = "last_update_notif"
         const val AUTO_CHECK_UPDATES_KEY = "auto_check_updates"
         const val UPDATE_CHANNEL_KEY = "update_channel"
-        const val TV_BRO_UA_PREFIX = "TV Bro/1.0 "
+        const val TV_BRO_UA_PREFIX = "Xera/1.0 "
         const val HOME_URL_ALIAS = "about:home"
         const val KEEP_SCREEN_ON_KEY = "keep_screen_on"
         /** When true, analog stick / hat axes from generic motion events are not translated to DPAD keys. */

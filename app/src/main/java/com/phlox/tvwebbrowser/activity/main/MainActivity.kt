@@ -172,7 +172,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
 
         vb.vTabs.listener = tabsListener
 
-        vb.ibAdBlock.setOnClickListener { toggleAdBlockForTab() }
+        vb.ibAdBlock.setOnClickListener { showAdBlockOverlay() }
         vb.ibPopupBlock.setOnClickListener { lifecycleScope.launch(Dispatchers.Main) { showPopupBlockOptions() } }
         vb.ibHome.setOnClickListener { navigate(settingsModel.homePage) }
         vb.ibBack.setOnClickListener { navigateBack() }
@@ -589,6 +589,32 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
 
         vb.tvBlockedPopupCounter.visibility = if (tab.blockedPopups != 0) View.VISIBLE else View.GONE
         vb.tvBlockedPopupCounter.text = tab.blockedPopups.toString()
+
+        // Subtle but visible "SHIELDS ON" — not shouting, just knowing it's Xera not a clone
+        vb.tvShieldsOn.visibility = if (adblockEnabled) View.VISIBLE else View.GONE
+    }
+
+    private fun showAdBlockOverlay() {
+        val tab = tabsModel.currentTab.value
+        com.phlox.tvwebbrowser.activity.main.dialogs.AdBlockOverlayDialog(
+            this,
+            tab,
+            onToggle = { enabled ->
+                tab?.apply {
+                    adblock = enabled
+                    webEngine.onUpdateAdblockSetting(enabled)
+                    onWebViewUpdated(this)
+                    refresh()
+                } ?: run {
+                    config.adBlockEnabled = enabled
+                    tabsModel.currentTab.value?.let { onWebViewUpdated(it) }
+                }
+            },
+            onManage = {
+                // Open Settings directly to Ad Blocking section
+                showSettings()
+            }
+        ).show()
     }
 
     private fun onDownloadRequested(url: String, referer: String, originalDownloadFileName: String, userAgent: String?, mimeType: String? = null,
