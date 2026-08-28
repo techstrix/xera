@@ -152,7 +152,8 @@
   <main class="wrap" style="flex:1; width:100%">
     <div class="hero" aria-label="Search">
       <div class="hero-logo" aria-label="Xera Browser">
-        <div class="hero-text">XERA</div>
+        <img class="hero-mark" src="xera-logo.png" alt="Xera" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div class="hero-text" style="display:none">XERA</div>
       </div>
       <h2 class="headline">Search <b>quietly.</b></h2>
       <div class="tube" role="search" aria-label="Search">
@@ -343,7 +344,7 @@ function performSearch(text) {
   if(text === undefined || text === null) text = document.getElementById("search-input").value;
   text = String(text).trim();
   if(!text) { toast("Type something to search"); return; }
-  var looksLikeUrl = /^(https?:\/\/|www\.)/i.test(text) || /^[^\/\s]+\.(?=[^\/\s]*[A-Za-z])[^\/\s]{2,}(\/.*)?$/.test(text);
+  var looksLikeUrl = /^(https?:\/\/|www\.)/i.test(text) || /^[^\/\s:?#]+\.(?=[^\/\s:?#]*[A-Za-z])[^\/\s:?#]{2,}(:\d+)?(\/[^?\s#]*)?(\?[^#\s]*)?(#[^\s]*)?$/.test(text);
   var url;
   if(looksLikeUrl && !/\s/.test(text)){
     url = text; if(!/^https?:\/\//i.test(url)) url = "https://" + url;
