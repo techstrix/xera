@@ -1,647 +1,405 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Xera Browser: Home</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-body {
-    color:#343a3c;
-    background-color:#EDF6FF;
-}
-@media (prefers-color-scheme: dark) {
-    body {
-        color:#f8f9fa;
-        background-color:#343a3c;
-    }    
-}
-
-#suggestions {
-    width: 65vw;
-    margin: auto;
-    table-layout: fixed;
-    outline: none;
-    position: relative;
-    top: 18vh;
-    -webkit-border-horizontal-spacing: 1vw;
-    -webkit-border-vertical-spacing: 2vh !important;
-    border-spacing: 1vw;
-}
-
-td {
-    overflow: hidden;
-    white-space: nowrap;
-    word-wrap: break-word;
-    outline:none;
-}
-
-.sugg {
-    padding: 1vh 1vw;
-    white-space: nowrap;
-    word-wrap: break-word;
-    transition: .5s;
-    color: #4F4F4F;
-    background: #FFFFFF;
-    box-shadow: 0px 1px 12px rgb(134 192 255 / 16%);
-    border: 2px solid #FFFFFF;
-    border-radius: 0.5vw;
-}
-@media (prefers-color-scheme: dark) {
-    .sugg {
-        color: #f8f9fa;
-        background: #1e2122;
-        box-shadow: 0px 1px 12px rgb(0 0 0 / 16%);
-        border: 2px solid #343a3c;
-    }
-}
-.sugg:hover {
-    transition:.5s;
-    background: #F3F6FA;
-    border: 2px solid #A5D0FF;
-    border-radius: 12px;
-}
-@media (prefers-color-scheme: dark) {
-    .sugg:hover {
-        background: #343a3c;
-        border: 2px solid #A5D0FF;
-        border-radius: 12px;
-    }
-}
-.sugg:hover > div:nth-child(2) {
-    color: #6666aa;
-}
-.sugg-ico {
-    width: 4vw;
-    float: left;
-    color-scheme: only light;
-}
-.sugg-title {
-    display: block;
-    max-width: 90%;
-    margin-left: 5vw;
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 600;
-    font-size: 1.3vw;
-    line-height: 2.5vw;
-    background-color: transparent;
-}
-.sugg-title.empty {
-    background-color: #fcfcfc;
-}
-@media (prefers-color-scheme: dark) {
-    .sugg-title.empty {
-        background-color: #1f2425;
-        border-radius: 12px;
-    }
-}
-.ellipsize, .sugg-title, .sugg-desk{
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-.sugg-desk {
-    display: block;
-    color: #BDBDBD;
-    margin-left: 5vw;
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 1vw;
-    line-height: 1.5vw;
-    background-color: transparent;
-}
-@media (prefers-color-scheme: dark) {
-    .sugg-desk {
-        color: #f8f9fa;
-    }
-}
-.sugg-desk.empty {
-    background-color: #fafafa;
-    border-radius: 12px;
-}
-@media (prefers-color-scheme: dark) {
-    .sugg-desk.empty {
-        background-color: #1f2425;
-    }
-}
-.more {
-    width: 1vw;
-    float: right;
-    margin-top: 1vh;
-    cursor: pointer;
-    display: none;
-}
-.logo {
-    width: 10vw;
-    height: 7.5vw;
-    margin-top: 5vh;
-    background-image: url("logo.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    position: absolute;
-    color-scheme: only light;
-}
-
-.wrapper {
-    position: relative;
-    top: 15vh;
-    width: 63vw;
-    margin: auto;
-}
-
-.search_box{
-    background: #fff;
-    border-radius: 0.5vw;
-    height: 3vw;
-    display: flex;
-    padding: 0.5vw;
-    box-shadow: 0 8px 6px -10px #b3c6ff;
-}
-@media (prefers-color-scheme: dark) {
-    .search_box{
-        background: #1e2122;
-        box-shadow: 0 8px 6px -10px #000000;
-    }
-}
-
-.wrapper .search_box .dropdown{
-  width: 7vw;
-  border-right: 2px solid #dde2f1;
-  color: #9fa3b1;
-  position: relative;
-  cursor: pointer;
-}
-@media (prefers-color-scheme: dark) {
-    .wrapper .search_box .dropdown{
-        border-right: 2px solid #343a3c;
-        color: #f8f9fa;
-    }
-}
-
-.wrapper .search_box .dropdown .default_option{
-    display: block;
-    background: url(favicons/google.png) no-repeat;
-    width: 3vw;
-    height: 3vw;
-    margin-left: 1vw;
-    background-size: 3vw;
-    border: none;
-}
-
-.wrapper .search_box .dropdown ul{
-    z-index: 1;
-    position: absolute;
-    font-size: 2vw;
-    list-style-type: none;
-    background: #fff;
-    width: 16vw;
-    border-radius: 0.5vw;
-    padding: 1vw;
-    display: none;
-    box-shadow: 0.5vw 0.5vw 2vw -0.5vw #b3c6ff;
-}
-@media (prefers-color-scheme: dark) {
-    .wrapper .search_box .dropdown ul{
-        background: #1e2122;
-        box-shadow: 0.5vw 0.5vw 2vw -0.5vw #000000;
-    }
-}
-
-.wrapper .search_box .dropdown ul.active{
-  display: block;
-}
-
-.wrapper .search_box .dropdown ul li{
-  padding-bottom: 20px;
-}
-
-.wrapper .search_box .dropdown ul li img {
-    width: 2vw;
-    height: 2vw;
-    display: block;
-    float: left;
-    margin-right: 0.5vw;
-    color-scheme: only light;
-}
-
-.wrapper .search_box .dropdown ul li:last-child{
-  padding-bottom: 0;
-}
-
-.wrapper .search_box .dropdown ul li:hover{
-  color: #6f768d;
-}
-
-.wrapper .search_box .dropdown:before{
-    content: "";
-    position: absolute;
-    top: 1.2vw;
-    right: 1vw;
-    border: 0.45vw solid;
-    border-color: #5078ef transparent transparent transparent;
-}
-
-.wrapper .search_box .search_field{
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-}
-
-.wrapper .search_box .search_field .input{
-    width: 100%;
-    height: 100%;
-    border: 0px;
-    font-size: 1.5vw;
-    padding-left: 1vw;
-    padding-right: 3vw;
-    color: #6f768d;
-    flex-grow: 1;
-}
-@media (prefers-color-scheme: dark) {
-    .wrapper .search_box .search_field .input{
-        color: #f8f9fa;
-        background-color: #1e2122;
-    }
-}
-
-.wrapper .search_box .search_field .fas{
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 22px;
-  color: #5078ef;
-  cursor: pointer;
-}
-@media (prefers-color-scheme: dark) {
-    .wrapper .search_box .search_field .fas{
-        color: #f8f9fa;
-    }
-}
-
-.wrapper .search_box .search_action_container{
-    border-left: 2px solid #dde2f1;
-    width: 4vw;
-    cursor: pointer;
-    margin-left: 2px;
-}
-@media (prefers-color-scheme: dark) {
-    .wrapper .search_box .search_action_container{
-        border-left: 2px solid #343a3c;
-    }
-}
-
-.wrapper .search_box .search_action_container .mic{
-    width: 3vw;
-    height: 2.4vw;
-    margin: 0.3vw;
-    background-image: url(mic.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-}
-
-.wrapper .search_box .search_action_container .lenz{
-    width: 3vw;
-    height: 2.4vw;
-    margin: 0.3vw;
-    background-image: url(search.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    display: none;
-}
-
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    color: #9fa3b1;
-}
-::-moz-placeholder { /* Firefox 19+ */
-    color: #9fa3b1;
-}
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Xera — Start</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fragment+Mono&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAF2FA;
+    --card:#FFFFFF;
+    --ink:#111C2E;
+    --muted:#6E7A8A;
+    --line:#D6DEE8;
+    --line2:#EEF2F7;
+    --signal:#2A7FFF;
+    --signal-soft:rgba(42,127,255,.14);
+    --radius:18px;
+    --tube-h:62px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation:none!important; transition:none!important}}
+  html{background:transparent}
+  body{
+    margin:0;
+    background: transparent;
+    color:var(--ink); font-family:Inter,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    min-height:100dvh;
+    position:relative;
+  }
+  .bg{position:fixed; inset:0; z-index:-2; overflow:hidden; background:var(--paper)}
+  .bg img{width:100%; height:100%; object-fit:cover; object-position:center center; display:block}
+  .bg::after{ content:""; position:absolute; inset:0; pointer-events:none; }
+  .bar, .wrap{position:relative; z-index:1}
+  button,input{font:inherit}
+  a{color:inherit; text-decoration:none}
+  :focus-visible{outline:none; box-shadow:0 0 0 1.5px var(--signal), 0 0 0 6px var(--signal-soft)}
+  .bar{max-width:1160px; margin:0 auto; padding:18px 20px 0; min-height:16px}
+.hero-logo{display:flex; flex-direction:column; align-items:center; gap:0; margin-bottom:18px}
+.hero-mark{width:230px; height:auto; display:block; object-fit:contain; pointer-events:none; user-select:none; filter:drop-shadow(0 0 16px rgba(255,255,255,.30)) drop-shadow(0 4px 18px rgba(8,18,36,.30))}
+.hero-text{font-family:"Space Grotesk",sans-serif; font-size:42px; font-weight:700; letter-spacing:-0.04em; color:#fff; text-shadow:0 2px 18px rgba(8,18,36,.38); line-height:1}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 20px 24px}
+  .hero{padding:10vh 0 0; text-align:center; max-width:760px; margin:0 auto}
+  @media(max-width:760px){.hero{padding-top:6vh}}
+  .headline{margin:0; font-family:"Space Grotesk",sans-serif; font-size:22px; font-weight:600; letter-spacing:-.03em; line-height:1.1; color:#fff; text-shadow:0 2px 18px rgba(8,18,36,.38)}
+  .headline b{font-weight:700}
+  .tube{
+    margin:22px auto 0;
+    height:var(--tube-h);
+    width:100%;
+    max-width:760px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(17,28,46,.08);
+    border-radius:999px;
+    display:flex; align-items:center; gap:0;
+    padding:6px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 8px 24px rgba(17,28,46,.07), 0 1px 3px rgba(17,28,46,.06);
+    transition:border-color .14s, box-shadow .14s;
+  }
+  .tube:hover{border-color:rgba(17,28,46,.14); box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 12px 32px rgba(17,28,46,.09)}
+  .tube:focus-within{border-color:var(--signal); box-shadow: 0 0 0 1.5px var(--signal), 0 0 0 6px var(--signal-soft), 0 12px 32px rgba(17,28,46,.10)}
+  .engine{position:relative; flex:0 0 auto; height:100%; display:flex; align-items:center; padding-right:10px; border-right:1px solid var(--line2); margin-right:6px}
+  .engine-btn{
+    appearance:none; border:1px solid var(--line); background:var(--card);
+    border-radius:999px; padding:8px 11px; display:flex; align-items:center; gap:8px;
+    cursor:pointer; font-size:12px; font-weight:600; color:var(--ink); white-space:nowrap;
+  }
+  .engine-btn:hover{border-color:var(--ink)}
+  .engine-btn img{width:18px; height:18px; border-radius:50%; background:#fff; object-fit:contain; display:block}
+  .engine-btn .chev{font-size:9px; color:var(--muted); margin-left:2px}
+  .tube{position:relative; z-index:20}
+  .hero{position:relative; z-index:20}
+  .engine-menu{
+    position:absolute; left:0; top:calc(100% + 10px);
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:6px;
+    min-width:202px; box-shadow:0 16px 40px rgba(17,28,46,.14); display:none; z-index:999; text-align:left;
+  }
+  .engine-menu.open{display:block}
+  .engine-menu button{width:100%; display:flex; align-items:center; gap:10px; border:0; background:transparent; padding:9px 10px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:500}
+  .engine-menu button:hover{background:var(--line2)}
+  .engine-menu img{width:18px; height:18px; display:block}
+  .field{flex:1; min-width:0; display:flex; align-items:center}
+  .field input{width:100%; border:0; outline:0; background:transparent; font-size:15.5px; font-weight:500; color:var(--ink); padding:0 8px}
+  .field input::placeholder{color:#8E9AAB; font-weight:400}
+  .actions{display:flex; align-items:center; gap:6px; flex:0 0 auto; padding-left:6px; border-left:1px solid var(--line2); margin-left:6px}
+  .act{width:42px; height:42px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:grid; place-items:center; cursor:pointer; color:var(--ink)}
+  .act:hover{border-color:var(--ink)}
+  .act.primary{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+  .act.primary:hover{background:#0B1426}
+  .act svg{width:16px; height:16px; display:block}
+  #suggestions{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:12px;
+    align-items:stretch;
+    width:100%;
+    margin:28px 0 0;
+    border:0; border-spacing:0; border-collapse:separate;
+  }
+  #suggestions tbody,#suggestions thead,#suggestions tr{display:contents}
+  #suggestions td{padding:0; min-width:0; border:0; display:flex; align-items:stretch}
+  .grid-wrap{display:none}
+  .add-card{
+    background:var(--card); border:1px dashed var(--line); border-radius:18px;
+    padding:14px 14px 12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    flex:1; width:100%; height:100%; min-height:84px; min-width:0; box-sizing:border-box;
+    cursor:pointer; transition:border-color .14s, box-shadow .14s, background .14s; color:var(--muted);
+    font-family:Inter,system-ui,sans-serif; align-self:stretch;
+  }
+  .add-card:hover{border-color:var(--ink); color:var(--ink); box-shadow:0 8px 20px rgba(17,28,46,.07)}
+  .add-plus{width:40px; height:40px; border-radius:10px; border:none; background:transparent; display:grid; place-items:center; font-size:26px; font-weight:400; line-height:1; color:var(--muted)}
+  .add-card:hover .add-plus{color:var(--ink)}
+  .add-label{font-size:12px; font-weight:600; letter-spacing:-.01em}
+  @media(max-width:980px){#suggestions{grid-template-columns:repeat(3, minmax(0,1fr))}}
+  @media(max-width:700px){#suggestions{grid-template-columns:repeat(2, minmax(0,1fr))}}
+  @media(max-width:460px){#suggestions{grid-template-columns:minmax(0,1fr)}}
+  .sugg{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px 14px 12px; display:flex; gap:12px; align-items:flex-start;
+    cursor:pointer; transition:transform .16s, border-color .14s, box-shadow .14s;
+    width:100%; height:100%; min-height:84px; min-width:0; box-sizing:border-box;
+    position:relative; overflow:hidden;
+  }
+  .sugg:hover{border-color:var(--ink); transform:translateY(-1px); box-shadow:0 8px 20px rgba(17,28,46,.07)}
+  .sugg:hover .go{border-color:var(--ink); color:var(--ink)}
+  .sugg-ico{width:40px; height:40px; border-radius:10px; background:#F4F7FB; border:1px solid var(--line2); flex:0 0 auto; object-fit:contain; padding:7px; display:block}
+  .sugg-title{margin-left:0 !important; font-family:Inter,system-ui,sans-serif; font-size:13px !important; font-weight:600 !important; line-height:1.2 !important; color:var(--ink) !important; max-width:100% !important}
+  .sugg-desk{margin-left:0 !important; font-size:11px !important; line-height:1.35 !important; color:var(--muted) !important; margin-top:3px !important}
+  .more{width:14px !important; float:none !important; margin-top:0 !important; position:absolute; right:12px; top:12px; opacity:.45}
+  .sugg-text{flex:1; min-width:0; padding-right:12px}
+  .go{position:absolute; right:12px; bottom:12px; width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:grid; place-items:center; font-size:11px; color:var(--muted); background:var(--card)}
+  .sugg-title.empty, .sugg-desk.empty{background:var(--line2) !important; border-radius:6px; color:transparent !important}
+  @media(prefers-color-scheme:dark){
+    body{background:var(--paper); color:var(--ink)}
+    .sugg{background:var(--card); border-color:var(--line); color:var(--ink)}
+    .sugg:hover{background:var(--card)}
+  }
+  .toast{position:fixed; right:16px; bottom:16px; background:var(--ink); color:var(--paper); padding:10px 12px; border-radius:10px; font-size:12px; display:none; box-shadow:0 12px 32px rgba(0,0,0,.18); z-index:20}
+  .logo{display:none}
+  .wrapper{position:static !important; width:auto !important; margin:0 !important}
+</style>
 </head>
 <body>
-<div style="height: 100%; width: 100%; position: absolute; left: 0; top: 0; overflow-x: hidden;">
-    <div class="logo"></div>
-    <div class="wrapper">
-        <div class="search_box">
-            <div class="dropdown">
-                <div class="default_option" onclick="onSearchEngineDropDownClick();"></div>  
-                <ul id="search-engines-list">
-                  <li onclick="applySearchEngine('google', null, true);"><img src="favicons/google.png" /> Google</li>
-                  <li onclick="applySearchEngine('bing', null, true);"><img src="favicons/bing.png" /> Bing</li>
-                  <li onclick="applySearchEngine('yahoo', null, true);"><img src="favicons/yahoo.png" /> Yahoo!</li>
-                  <li onclick="applySearchEngine('ddg', null, true);"><img src="favicons/ddg.png" /> DuckDuckGo</li>
-                  <li onclick="applySearchEngine('yandex', null, true);"><img src="favicons/yandex.png" /> Yandex</li>
-                  <li onclick="applySearchEngine('startpage', null, true);"><img src="favicons/startpage.png" /> Startpage</li>
-                  <li onclick="applySearchEngine('custom', promptCustomSearchEngineUrl(), true);"><img src="favicons/custom.png" /> Custom</li>
-                </ul>
-            </div>
-            <div class="search_field">
-                <input type="text" id="search-input" class="input" placeholder="Search">
-                <div class="search_action_container">
-                    <div class="mic"></div>
-                    <div class="lenz"></div>
-                </div>
-            </div>
+<div class="bg" aria-hidden="true"><img src="ocean.jpg" alt="" onerror="this.style.display='none'; this.parentElement.style.background='var(--paper)'"></div>
+<div style="min-height:100dvh; display:flex; flex-direction:column">
+  <header class="bar" aria-hidden="true"></header>
+  <main class="wrap" style="flex:1; width:100%">
+    <div class="hero" aria-label="Search">
+      <div class="hero-logo" aria-label="Xera Browser">
+        <img class="hero-mark" src="xera-logo.png" alt="Xera" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div class="hero-text" style="display:none">XERA</div>
+      </div>
+      <h2 class="headline">Search <b>quietly.</b></h2>
+      <div class="tube" role="search" aria-label="Search">
+        <div class="engine">
+          <button class="engine-btn default_option" id="engineBtn" aria-haspopup="menu" aria-expanded="false" onclick="onSearchEngineDropDownClick()">
+            <img id="engineIco" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="">
+            <span id="engineLbl">Google</span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="engine-menu" id="search-engines-list" role="menu" aria-label="Search engines">
+            <button role="menuitem" onclick="applySearchEngine('google', null, true)"><img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt=""> Google</button>
+            <button role="menuitem" onclick="applySearchEngine('bing', null, true)"><img src="https://www.google.com/s2/favicons?domain=bing.com&sz=64" alt=""> Bing</button>
+            <button role="menuitem" onclick="applySearchEngine('yahoo', null, true)"><img src="https://www.google.com/s2/favicons?domain=yahoo.com&sz=64" alt=""> Yahoo!</button>
+            <button role="menuitem" onclick="applySearchEngine('ddg', null, true)"><img src="https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=64" alt=""> DuckDuckGo</button>
+            <button role="menuitem" onclick="applySearchEngine('yandex', null, true)"><img src="https://www.google.com/s2/favicons?domain=yandex.com&sz=64" alt=""> Yandex</button>
+            <button role="menuitem" onclick="applySearchEngine('startpage', null, true)"><img src="https://www.google.com/s2/favicons?domain=startpage.com&sz=64" alt=""> Startpage</button>
+            <button role="menuitem" onclick="applySearchEngine('custom', promptCustomSearchEngineUrl(), true)"><img src="https://www.google.com/s2/favicons?domain=example.com&sz=64" alt=""> Custom</button>
+          </div>
         </div>
+        <label class="field" aria-label="Search or enter address">
+          <input type="text" id="search-input" class="input" placeholder="Search or enter address" autocomplete="off" spellcheck="false"/>
+        </label>
+        <div class="actions search_action_container">
+          <button class="act mic" aria-label="Voice search" onclick="onMicClick()" title="Voice search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"/><path d="M19 10a7 7 0 0 1-14 0"/><path d="M12 19v3"/><path d="M8 22h8"/></svg>
+          </button>
+          <button class="act lenz primary" aria-label="Search" onclick="performSearch(document.getElementById('search-input').value)" title="Search" style="display:grid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20L16 16"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
-    <table cellspacing="32" id="suggestions">
-        <tr>
-            <td onclick="onSuggestionClicked(0)">
-                <div class="sugg" style="margin-left: 0;" id="sugg0">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>                    
-                </div>
-            </td>
-            <td onclick="onSuggestionClicked(1)">
-                <div class="sugg" style="margin-left: 0;" id="sugg1">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td onclick="onSuggestionClicked(2)">
-                <div class="sugg" style="margin-left: 0;" id="sugg2">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-            <td onclick="onSuggestionClicked(3)">
-                <div class="sugg" style="margin-left: 0;" id="sugg3">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td onclick="onSuggestionClicked(4)">
-                <div class="sugg" style="margin-left: 0;" id="sugg4">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-            <td onclick="onSuggestionClicked(5)">
-                <div class="sugg" style="margin-left: 0;" id="sugg5">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td onclick="onSuggestionClicked(6)">
-                <div class="sugg" style="margin-left: 0;" id="sugg6">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-            <td onclick="onSuggestionClicked(7)">
-                <div class="sugg" style="margin-left: 0;" id="sugg7">
-                    <img class="sugg-ico" onerror="onIcoLoadError(this)" />
-                    <img src="more.svg" class="more" />
-                    <div class="sugg-title">&nbsp;</div>
-                    <div class="sugg-desk">&nbsp;</div>
-                </div>
-            </td>
-        </tr>
+    <table id="suggestions" role="presentation" aria-label="Shortcuts">
+      <tr>
+        <td onclick="onSuggestionClicked(0)"><div class="sugg" id="sugg0"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(1)"><div class="sugg" id="sugg1"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(2)"><div class="sugg" id="sugg2"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(3)"><div class="sugg" id="sugg3"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+      </tr>
+      <tr>
+        <td onclick="onSuggestionClicked(4)"><div class="sugg" id="sugg4"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(5)"><div class="sugg" id="sugg5"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(6)"><div class="sugg" id="sugg6"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td onclick="onSuggestionClicked(7)"><div class="sugg" id="sugg7"><img class="sugg-ico" alt="" onerror="onIcoLoadError(this)"/><div class="sugg-text"><div class="sugg-title">&nbsp;</div><div class="sugg-desk">&nbsp;</div></div><img src="more.svg" class="more" alt=""/><span class="go" aria-hidden="true">↗</span></div></td>
+        <td>
+          <button class="add-card" id="addShortcut" aria-label="Add shortcut" onclick="onAddShortcut()">
+            <span class="add-plus" aria-hidden="true">+</span>
+            <span class="add-label">Add shortcut</span>
+          </button>
+        </td>
+      </tr>
     </table>
+    <div class="wrapper" aria-hidden="true" style="display:none"><div class="search_box"><div class="dropdown"><div class="default_option"></div></div><div class="search_field"><input class="input"/></div><div class="search_action_container"><div class="mic"></div><div class="lenz"></div></div></div></div>
+  </main>
 </div>
-
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="logo" aria-hidden="true"></div>
 <script>
 var searchEngineUrlMap = {
-        "google": "https://www.google.com/search?q=[query]",
-        "bing": "https://www.bing.com/search?q=[query]",
-        "yahoo": "https://search.yahoo.com/search?p=[query]",
-        "ddg": "https://duckduckgo.com/?q=[query]",
-        "yandex": "https://yandex.com/search/?text=[query]",
-        "startpage": "https://www.startpage.com/sp/search?query=[query]",
-        "custom": ""
-    };
+  "google": "https://www.google.com/search?q=[query]",
+  "bing": "https://www.bing.com/search?q=[query]",
+  "yahoo": "https://search.yahoo.com/search?p=[query]",
+  "ddg": "https://duckduckgo.com/?q=[query]",
+  "yandex": "https://yandex.com/search/?text=[query]",
+  "startpage": "https://www.startpage.com/sp/search?query=[query]",
+  "custom": ""
+};
 var recommendationsToDisplay = [];
 var homePageLinksMode = "RECOMMENDATIONS";
-
 function onIcoLoadError(element) {
-    element.src='ic_not_available.svg';
-    element.style.filter = "invert(1)";
+  element.src='ic_not_available.svg';
+  element.style.filter = "invert(1)";
+  element.style.opacity = ".6";
 }
-
 function onSuggestionClicked(index) {
-    var bookmark = null;
-    if (homePageLinksMode === "BOOKMARKS" && window.hasOwnProperty( "TVBro" )) {
-        bookmark = recommendationsToDisplay.find(function (b) { return b.order === index; });
-        if (bookmark && TVBro.hasOwnProperty("markBookmarkRecommendationAsUseful")) {
-            TVBro.markBookmarkRecommendationAsUseful(index);
-        }
-    } else {
-        if (index >= recommendationsToDisplay.length) return;
-        bookmark = recommendationsToDisplay[index];
-    }
-    if (!bookmark) return;
-    var url = bookmark.dest_url ? bookmark.dest_url : bookmark.url;
-    window.location.href = url;
+  var bookmark = null;
+  if (homePageLinksMode === "BOOKMARKS" && window.hasOwnProperty("TVBro")) {
+    bookmark = recommendationsToDisplay.find(function (b) { return b.order === index; });
+    if (bookmark && TVBro.hasOwnProperty("markBookmarkRecommendationAsUseful")) TVBro.markBookmarkRecommendationAsUseful(index);
+  } else {
+    if (index >= recommendationsToDisplay.length) return;
+    bookmark = recommendationsToDisplay[index];
+  }
+  if (!bookmark) return;
+  var url = bookmark.dest_url ? bookmark.dest_url : bookmark.url;
+  window.location.href = url;
 }
-
 function loadRecommendations() {
-    return [
-        {"title": "Wikipedia - the free encyclopedia", "url":"https://www.wikipedia.org", "favicon": "https://ru.wikipedia.org/static/apple-touch/wikipedia.png"},
-        {"title": "Reddit - Dive into anything", "url":"https://www.reddit.com", "favicon": "https://www.redditstatic.com/desktop2x/img/favicon/apple-icon-120x120.png"},
-        {"title": "My Tuner", "url":"https://mytuner-radio.com/", "favicon": "https://static2.mytuner.mobi/static/icons/apple-touch-icon-120x120-precomposed.png"},
-        {"title": "Instagram", "url":"https://www.instagram.com", "favicon": "https://static.cdninstagram.com/rsrc.php/v3/ys/r/aM-g435MtEX.png"},
-        {"title": "IMDb", "url":"https://www.imdb.com/", "favicon": "https://m.media-amazon.com/images/G/01/imdb/images-ANDW73HA/favicon_iPhone_retina_180x180._CB1582158069_UX60_.png"},
-        {"title": "eBay", "url":"https://www.ebay.com/", "favicon": "https://www.ebay.com/apple-touch-icon.png"},
-        {"title": "Itch.io", "url":"https://itch.io/games/input-gamepad/platform-web", "favicon": "https://itch.io/static/images/itchio-square-144.png"},
-        {"title": "BBC News", "url":"https://www.bbc.com/news", "favicon": "https://www.bbc.com/apple-touch-icon-120x120-precomposed.png"}
-    ];
+  return [
+    {"title": "Wikipedia - the free encyclopedia", "url":"https://www.wikipedia.org", "favicon": "https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64"},
+    {"title": "Reddit - Dive into anything", "url":"https://www.reddit.com", "favicon": "https://www.google.com/s2/favicons?domain=reddit.com&sz=64"},
+    {"title": "My Tuner", "url":"https://mytuner-radio.com/", "favicon": "https://www.google.com/s2/favicons?domain=mytuner-radio.com&sz=64"},
+    {"title": "Instagram", "url":"https://www.instagram.com", "favicon": "https://www.google.com/s2/favicons?domain=instagram.com&sz=64"},
+    {"title": "IMDb", "url":"https://www.imdb.com/", "favicon": "https://www.google.com/s2/favicons?domain=imdb.com&sz=64"},
+    {"title": "eBay", "url":"https://www.ebay.com/", "favicon": "https://www.google.com/s2/favicons?domain=ebay.com&sz=64"},
+    {"title": "Itch.io", "url":"https://itch.io/games/input-gamepad/platform-web", "favicon": "https://www.google.com/s2/favicons?domain=itch.io&sz=64"},
+    {"title": "BBC News", "url":"https://www.bbc.com/news", "favicon": "https://www.google.com/s2/favicons?domain=bbc.com&sz=64"}
+  ];
 }
-
 function renderLinks(mode, linksArray) {
-    //both parameters are optional
-    console.log("Rendering links: mode=" + mode + ", linksArray=" + JSON.stringify(linksArray));
-    homePageLinksMode = mode ? mode : "RECOMMENDATIONS";
-    recommendationsToDisplay = linksArray ? linksArray : loadRecommendations();
-
-    recommendationsToDisplay.map(function(c, i, arr) {
-        if (!c.favicon) {
-            var urlStr = c.url;
-            try {
-                var url = new URL(urlStr);
-                c.favicon = url.origin + "/favicon.ico";
-
-                if (window.hasOwnProperty( "TVBro" )) {
-                    if (TVBro.requestFavicon) {
-                        //GeckoView
-                        TVBro.requestFavicon(urlStr);
-                    } else {
-                        //WebView
-                        c.favicon = "favicon://" + url.host;
-                    }                    
-                }
-            } catch (e) {
-                console.log("Invalid URL: " + urlStr);
-                console.log("Invalid URL: " + urlStr);
-            }
+  homePageLinksMode = mode ? mode : "RECOMMENDATIONS";
+  recommendationsToDisplay = linksArray ? linksArray : loadRecommendations();
+  recommendationsToDisplay.map(function(c){
+    if (!c.favicon) {
+      var urlStr = c.url;
+      try {
+        var url = new URL(urlStr);
+        c.favicon = url.origin + "/favicon.ico";
+        if (window.hasOwnProperty("TVBro")) {
+          if (TVBro.requestFavicon) TVBro.requestFavicon(urlStr);
+          else c.favicon = "favicon://" + url.host;
         }
-        return c;
-    })
-    
-    console.log("Rendering links: recommendationsToDisplay=" + JSON.stringify(recommendationsToDisplay));
-    
-    for (var i = 0; i < 8; i++) {
-        var suggElement = document.getElementById("sugg" + i);
-        if (suggElement) {
-            var link;
-            if (homePageLinksMode == "BOOKMARKS" && window.hasOwnProperty( "TVBro" )) {
-                link = recommendationsToDisplay.find(function(c) { return c.order == i; });
-            } else {
-                link = recommendationsToDisplay[i];
-            }
-
-            //console.log("Rendering link: " + link);
-
-            var titleElement = suggElement.getElementsByClassName("sugg-title")[0];
-            var descriptionElement = suggElement.getElementsByClassName("sugg-desk")[0];
-            var icon = suggElement.getElementsByClassName("sugg-ico")[0];
-            if (link) {
-                icon.src = link.favicon;
-                //color-scheme: only light;
-                icon.style.filter = "";
-                titleElement.innerHTML = link.title;
-                descriptionElement.innerHTML = link.description ? link.description : escapeHTML(link.url);
-            } else {
-                icon.src = "ic_not_available.svg";
-                //color-scheme: default;
-                icon.style.filter = "invert(1)";
-                titleElement.innerHTML = "&nbsp;";
-                descriptionElement.innerHTML = "&nbsp;";
-            }
-
-            titleElement.classList.toggle("empty", !link);
-            descriptionElement.classList.toggle("empty", !link);
-
-            if (homePageLinksMode == "BOOKMARKS" && window.hasOwnProperty( "TVBro" )) {
-                var moreElement = suggElement.getElementsByClassName("more")[0]; 
-                moreElement.style.display = "block";
-                moreElement.onclick = function(e) {
-                    var index = parseInt(e.target.parentElement.id.substring(4));
-                    TVBro.onEditBookmark(index);
-                    e.stopPropagation();
-                };
-            }
-        }
+      } catch(e) {}
     }
-}
-
-function onSearchEngineDropDownClick() {
-    document.getElementById("search-engines-list").classList.toggle("active");
-}
-
-function promptCustomSearchEngineUrl() {
-    var engine = localStorage.getItem("search-engine");
-    var searchEngineUrl = localStorage.getItem("search-engine-url");
-    searchEngineUrl = searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine];
-
-    return prompt("Enter search engine URL (with [query] as placeholder)", searchEngineUrl);
-}
-
-function applySearchEngine(engine, searchEngineUrl, notifyTVBro) {
-    document.getElementById("search-engines-list").classList.remove("active");
-
-    searchEngineUrl = searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine];
-
-    localStorage.setItem("search-engine", engine);
-    localStorage.setItem("search-engine-url", searchEngineUrl);
-
-    var iconUrl = "";
-    if (engine == "custom") {
-        var urlOrigin = new URL(searchEngineUrl.replace("[query]", "")).origin;
-        iconUrl = "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&size=120&url=" + urlOrigin;
+    return c;
+  });
+  for (var i = 0; i < 8; i++) {
+    var suggElement = document.getElementById("sugg" + i);
+    if (!suggElement) continue;
+    var link;
+    if (homePageLinksMode == "BOOKMARKS" && window.hasOwnProperty("TVBro")) link = recommendationsToDisplay.find(function(c){ return c.order == i; });
+    else link = recommendationsToDisplay[i];
+    var titleElement = suggElement.getElementsByClassName("sugg-title")[0];
+    var descriptionElement = suggElement.getElementsByClassName("sugg-desk")[0];
+    var icon = suggElement.getElementsByClassName("sugg-ico")[0];
+    if (link) {
+      icon.src = link.favicon;
+      icon.style.filter = "";
+      icon.style.opacity = "1";
+      titleElement.innerHTML = link.title;
+      descriptionElement.innerHTML = link.description ? escapeHTML(link.description) : escapeHTML(link.url);
+      suggElement.style.opacity = "1";
+      suggElement.style.pointerEvents = "auto";
     } else {
-        iconUrl = "favicons/" + engine + ".png";
+      icon.src = "ic_not_available.svg";
+      icon.style.filter = "invert(1)";
+      icon.style.opacity = ".35";
+      titleElement.innerHTML = "&nbsp;";
+      descriptionElement.innerHTML = "&nbsp;";
+      suggElement.style.opacity = ".45";
+      suggElement.style.pointerEvents = "none";
     }
-    document.getElementsByClassName("default_option")[0].style.backgroundImage = "url('" + iconUrl + "')";    
-
-    if (window.hasOwnProperty( "TVBro" ) && notifyTVBro) {
-        TVBro.setSearchEngine(engine, searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine]);
+    titleElement.classList.toggle("empty", !link);
+    descriptionElement.classList.toggle("empty", !link);
+    var moreElement = suggElement.getElementsByClassName("more")[0];
+    if (homePageLinksMode == "BOOKMARKS" && window.hasOwnProperty("TVBro")) {
+      moreElement.style.display = "block";
+      moreElement.onclick = function(e){ var idx = parseInt(e.target.closest('.sugg').id.substring(4)); TVBro.onEditBookmark(idx); e.stopPropagation(); };
+    } else {
+      moreElement.style.display = "none";
     }
+  }
 }
-
+function onSearchEngineDropDownClick() {
+  document.getElementById("search-engines-list").classList.toggle("active");
+  document.getElementById("search-engines-list").classList.toggle("open");
+  var expanded = document.getElementById("search-engines-list").classList.contains("open");
+  document.getElementById("engineBtn").setAttribute("aria-expanded", String(expanded));
+}
+function promptCustomSearchEngineUrl() {
+  var engine = localStorage.getItem("search-engine");
+  var searchEngineUrl = localStorage.getItem("search-engine-url");
+  searchEngineUrl = searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine];
+  return prompt("Enter search engine URL (with [query] as placeholder)", searchEngineUrl);
+}
+function applySearchEngine(engine, searchEngineUrl, notifyTVBro) {
+  document.getElementById("search-engines-list").classList.remove("active");
+  document.getElementById("search-engines-list").classList.remove("open");
+  document.getElementById("engineBtn").setAttribute("aria-expanded","false");
+  searchEngineUrl = searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine];
+  localStorage.setItem("search-engine", engine);
+  localStorage.setItem("search-engine-url", searchEngineUrl);
+  var iconUrl = "";
+  var label = engine;
+  var labelMap = {google:"Google", bing:"Bing", yahoo:"Yahoo!", ddg:"DuckDuckGo", yandex:"Yandex", startpage:"Startpage", custom:"Custom"};
+  label = labelMap[engine] || engine;
+  if (engine == "custom") {
+    try{ var origin = new URL(searchEngineUrl.replace("[query]", "")).origin; iconUrl = "https://www.google.com/s2/favicons?domain="+new URL(origin).hostname+"&sz=64"; } catch(e){ iconUrl="https://www.google.com/s2/favicons?domain=example.com&sz=64"; }
+  } else {
+    var domainMap={google:"google.com", bing:"bing.com", yahoo:"yahoo.com", ddg:"duckduckgo.com", yandex:"yandex.com", startpage:"startpage.com"};
+    iconUrl = "https://www.google.com/s2/favicons?domain="+(domainMap[engine]||"google.com")+"&sz=64";
+  }
+  document.getElementById("engineIco").src = iconUrl;
+  document.getElementById("engineLbl").textContent = label;
+  if (window.hasOwnProperty("TVBro") && notifyTVBro) TVBro.setSearchEngine(engine, searchEngineUrl ? searchEngineUrl : searchEngineUrlMap[engine]);
+}
 function performSearch(text) {
+  if(text === undefined || text === null) text = document.getElementById("search-input").value;
+  text = String(text).trim();
+  if(!text) { toast("Type something to search"); return; }
+  var looksLikeUrl = /^(https?:\/\/|www\.)/i.test(text) || /^[^\/\s:?#]+\.(?=[^\/\s:?#]*[A-Za-z])[^\/\s:?#]{2,}(:\d+)?(\/[^?\s#]*)?(\?[^#\s]*)?(#[^\s]*)?$/.test(text);
+  var url;
+  if(looksLikeUrl && !/\s/.test(text)){
+    url = text; if(!/^https?:\/\//i.test(url)) url = "https://" + url;
+  } else {
     var searchEngineUrl = localStorage.getItem('search-engine-url') ? localStorage.getItem('search-engine-url') : searchEngineUrlMap['google'];
-    var url = searchEngineUrl.replace("[query]", encodeURIComponent(text));
-    window.open(url, "_self");
+    url = searchEngineUrl.replace("[query]", encodeURIComponent(text));
+  }
+  window.open(url, "_self");
 }
-
-//callback called from TVBro/GeckoView
 function onFaviconLoaded(url, data) {
-    let imgElements = document.getElementsByTagName("img");
-    for (let i = 0; i < imgElements.length; i++) {
-        if (imgElements[i].src == "favicon://" + url) {
-            imgElements[i].src = data;
-        }
-    }
+  var imgs = document.getElementsByTagName("img");
+  for (var i=0;i<imgs.length;i++) if (imgs[i].src == "favicon://" + url) imgs[i].src = data;
 }
-
 function hideVoiceSearchUI() {
-    document.getElementsByClassName("mic")[0].style.display = "none";
-    document.getElementsByClassName("lenz")[0].style.display = "block";
+  var mic = document.querySelector(".mic"); if(mic) mic.style.display="none";
 }
-
-//initialization
-
+function onMicClick(){
+  var micEl = document.querySelector(".mic");
+  if(micEl && micEl.style.display==="none"){ performSearch(document.getElementById("search-input").value); }
+  else { if(window.hasOwnProperty("TVBro") && TVBro.startVoiceSearch) TVBro.startVoiceSearch(); else toast("Voice search — hold mic on remote"); }
+}
+var _t=null; function toast(m){ var el=document.getElementById('toast'); el.textContent=m; el.style.display='block'; clearTimeout(_t); _t=setTimeout(function(){el.style.display='none'},2200); }
 var escape = document.createElement('textarea');
-function escapeHTML(html) {
-    escape.textContent = html;
-    return escape.innerHTML;
-}
-
+function escapeHTML(html){ escape.textContent = html; return escape.innerHTML; }
 var searchEngine = localStorage.getItem('search-engine') ? localStorage.getItem('search-engine') : "google";
 var searchEngineUrl = localStorage.getItem('search-engine-url') ? localStorage.getItem('search-engine-url') : searchEngineUrlMap[searchEngine];
-
-document.getElementById("search-input").addEventListener("keydown", function(e) {
-    if (e.keyCode == 13) {
-        performSearch(document.getElementById("search-input").value);
-    }
+document.getElementById("search-input").addEventListener("keydown", function(e){ if(e.keyCode==13 || e.key==="Enter") performSearch(document.getElementById("search-input").value); });
+document.addEventListener("keydown", function(e){
+  if(e.key==="Escape"){ document.getElementById("search-engines-list").classList.remove("active"); document.getElementById("search-engines-list").classList.remove("open"); document.getElementById("engineBtn").setAttribute("aria-expanded","false"); }
 });
-
-document.getElementsByClassName("search_action_container")[0].onclick = function() {
-    if (document.getElementsByClassName("mic")[0].style.display == "none") {
-        performSearch(document.getElementById("search-input").value);
-    } else {
-        if (window.hasOwnProperty( "TVBro" )) {
-            TVBro.startVoiceSearch();
-        }
-    }
-};
-
-//there are three modes this page can run in:
-//1. Running inside ordinary web page - TVBro variable is not installed - no bookmarks, no voice search
-//2. Running inside TVBro WebView - TVBro variable is installed
-//3. Running inside TVBro GeckoView - TVBro variable is installed
-
-if (window.hasOwnProperty( "TVBro" )) {
-    console.log("Running inside TVBro");
-    TVBro.onHomePageLoaded();
-} else {
-    hideVoiceSearchUI();
-    applySearchEngine(searchEngine, searchEngineUrl, false);
-    renderLinks();
+document.addEventListener("click", function(e){
+  if(!e.target.closest(".engine") && !e.target.closest("#search-engines-list")){ document.getElementById("search-engines-list").classList.remove("active"); document.getElementById("search-engines-list").classList.remove("open"); document.getElementById("engineBtn").setAttribute("aria-expanded","false"); }
+});
+function updateDate(){
+  var cy=document.getElementById('copyYear'); if(cy) cy.textContent=String(new Date().getFullYear());
 }
-
+function onAddShortcut(){
+  if(window.hasOwnProperty("TVBro") && TVBro.onEditBookmark){
+    for(var i=0;i<8;i++){ var s=document.getElementById("sugg"+i); if(s && s.style.pointerEvents==="none"){ TVBro.onEditBookmark(i); return; } }
+    TVBro.onEditBookmark(8);
+  } else {
+    var url=prompt("Add shortcut URL:"); if(!url) return;
+    var title=prompt("Title:") || url;
+    recommendationsToDisplay.push({title:title, url:url, favicon:"https://www.google.com/s2/favicons?domain="+ (function(u){try{return new URL(u).hostname}catch(e){return u}})(url)+"&sz=64"});
+    renderLinks(homePageLinksMode, recommendationsToDisplay);
+  }
+}
+updateDate();
+if (window.hasOwnProperty("TVBro")) {
+  console.log("Running inside TVBro");
+  TVBro.onHomePageLoaded();
+} else {
+  applySearchEngine(searchEngine, searchEngineUrl, false);
+  renderLinks();
+}
 </script>
 </body>
 </html>
