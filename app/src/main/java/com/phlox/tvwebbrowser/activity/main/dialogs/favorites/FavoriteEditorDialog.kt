@@ -2,27 +2,18 @@ package com.phlox.tvwebbrowser.activity.main.dialogs.favorites
 
 import android.app.Dialog
 import android.content.Context
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
-
-import com.phlox.tvwebbrowser.R
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.phlox.tvwebbrowser.model.FavoriteItem
+import com.phlox.tvwebbrowser.ui.dialogs.NewFavoriteItemDialogCompose
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 
-/**
- * Created by PDT on 13.09.2016.
- */
 class FavoriteEditorDialog(context: Context, private val callback: Callback, private val item: FavoriteItem) : Dialog(context) {
-    private val tvTitle: TextView
-    private val tvUrl: TextView
-    private val etTitle: EditText
-    private val etUrl: EditText
-    private val ibTitle: ImageButton
-    private val ibUrl: ImageButton
-    private val btnDone: Button
-    private val btnCancel: Button
 
     interface Callback {
         fun onDone(item: FavoriteItem)
@@ -30,47 +21,28 @@ class FavoriteEditorDialog(context: Context, private val callback: Callback, pri
 
     init {
         setCancelable(true)
-        setTitle(if (item.id == 0L) R.string.new_bookmark else R.string.edit)
-        setContentView(R.layout.dialog_new_favorite_item)
-        tvTitle = findViewById<View>(R.id.tvTitle) as TextView
-        tvUrl = findViewById<View>(R.id.tvUrl) as TextView
-        etTitle = findViewById<View>(R.id.etTitle) as EditText
-        etUrl = findViewById<View>(R.id.etUrl) as EditText
-        ibTitle = findViewById<View>(R.id.ibTitle) as ImageButton
-        ibUrl = findViewById<View>(R.id.ibUrl) as ImageButton
-        btnDone = findViewById<View>(R.id.btnDone) as Button
-        btnCancel = findViewById<View>(R.id.btnCancel) as Button
-
-        ibTitle.setOnClickListener {
-            ibTitle.visibility = View.GONE
-            tvTitle.visibility = View.GONE
-            etTitle.visibility = View.VISIBLE
-            etTitle.requestFocus()
-        }
-
-        ibUrl.setOnClickListener {
-            ibUrl.visibility = View.GONE
-            tvUrl.visibility = View.GONE
-            etUrl.visibility = View.VISIBLE
-            etUrl.requestFocus()
-        }
-
-        btnDone.setOnClickListener {
-            this@FavoriteEditorDialog.item.title = etTitle.text.toString()
-            var urlStr = etUrl.text.toString()
-            //add https:// if url not starts with any schema
-            if (!urlStr.matches( Regex("^[A-Za-z]+://.*$"))) {
-                urlStr = "https://$urlStr"
+        val composeView = ComposeView(context).apply {
+            setViewTreeLifecycleOwner(context as? LifecycleOwner)
+            setViewTreeViewModelStoreOwner(context as? ViewModelStoreOwner)
+            setViewTreeSavedStateRegistryOwner(context as? SavedStateRegistryOwner)
+            setContent {
+                XeraTheme {
+                    NewFavoriteItemDialogCompose(
+                        initialTitle = item.title ?: "",
+                        initialUrl = item.url ?: "",
+                        onCancel = { dismiss() },
+                        onDone = { title, url ->
+                            var urlStr = url
+                            if (!urlStr.matches(Regex("^[A-Za-z]+://.*$"))) urlStr = "https://$urlStr"
+                            item.title = title
+                            item.url = urlStr
+                            callback.onDone(item)
+                            dismiss()
+                        }
+                    )
+                }
             }
-            this@FavoriteEditorDialog.item.url = urlStr
-            callback.onDone(this@FavoriteEditorDialog.item)
-            dismiss()
         }
-        btnCancel.setOnClickListener { dismiss() }
-
-        tvTitle.text = item.title
-        etTitle.setText(item.title)
-        tvUrl.text = item.url
-        etUrl.setText(item.url)
+        setContentView(composeView)
     }
 }
