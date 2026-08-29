@@ -440,6 +440,7 @@ open class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (startupFailed || !::tabsModel.isInitialized) return
         if (intent.data != null) {
             handleIntent(intent)
         }
@@ -716,6 +717,7 @@ open class MainActivity : AppCompatActivity() {
         if (voiceSearchHelper.processPermissionsResult(requestCode, permissions, grantResults)) {
             return
         }
+        if (startupFailed || !::tabsModel.isInitialized) return
         if (tabsModel.currentTab.value?.webEngine?.onPermissionsResult(requestCode, permissions, grantResults) == true) return
         if (grantResults.isEmpty()) return
         when (requestCode) {
@@ -738,6 +740,10 @@ open class MainActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (voiceSearchHelper.processActivityResult(requestCode, resultCode, data)) {
+            return
+        }
+        if (startupFailed || !::tabsModel.isInitialized) {
+            super.onActivityResult(requestCode, resultCode, data)
             return
         }
         when (requestCode) {
@@ -935,6 +941,7 @@ open class MainActivity : AppCompatActivity() {
         val localCallback = window.callback
         window.callback = object : Window.Callback by localCallback {
             override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (startupFailed || !::tabsModel.isInitialized) return localCallback.dispatchKeyEvent(event)
                 backNavigationEventsAdapter.dispatchKeyEvent(event)
 
                 val keyCode = if (event.keyCode != 0) event.keyCode else event.scanCode
@@ -951,6 +958,7 @@ open class MainActivity : AppCompatActivity() {
             }
 
             override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+                if (startupFailed || !::tabsModel.isInitialized) return localCallback.dispatchGenericMotionEvent(event)
                 if (backNavigationEventsAdapter.dispatchGenericMotionEvent(event)) {
                     return true
                 }
