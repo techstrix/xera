@@ -6,9 +6,15 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.fedir.segmentedbutton.SegmentedButton
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.activity.main.SettingsModel
+import com.phlox.tvwebbrowser.ui.dialogs.SettingsDialogCompose
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 import com.phlox.tvwebbrowser.widgets.SegmentedButtonTabsAdapter
 
 class SettingsDialog(context: Context, val model: SettingsModel) :
@@ -19,22 +25,38 @@ class SettingsDialog(context: Context, val model: SettingsModel) :
 
     init {
         setTitle(R.string.settings)
-        setContentView(R.layout.dialog_settings)
-
-        sbTabs = findViewById(R.id.sbTabs)
-
-        val tabContentAdapter = object : SegmentedButtonTabsAdapter(sbTabs, findViewById(R.id.flTabsContent)) {
-            override fun createContentViewForSegmentButtonId(id: Int): View {
-                return when (id) {
-                    R.id.btnMainTab -> {
-                        mainView = MainSettingsView(context)
-                        mainView!!
+        // Step 8 Compose migration — primary path uses Compose, fallback to XML if Compose not available
+        try {
+            val composeView = androidx.compose.ui.platform.ComposeView(context).apply {
+                setViewTreeLifecycleOwner(context as? androidx.lifecycle.LifecycleOwner)
+                setViewTreeViewModelStoreOwner(context as? androidx.lifecycle.ViewModelStoreOwner)
+                setViewTreeSavedStateRegistryOwner(context as? androidx.savedstate.SavedStateRegistryOwner)
+                setContent {
+                    XeraTheme {
+                        SettingsDialogCompose(onDismiss = { dismiss() })
                     }
-                    R.id.btnShortcutsTab -> ShortcutsSettingsView(context)
-                    else -> {
-                        val view = VersionSettingsView(context)
-                        view.callback = this@SettingsDialog
-                        view
+                }
+            }
+            setContentView(composeView)
+            // Dummy sbTabs for legacy onDismiss save path (not used in Compose)
+            sbTabs = SegmentedButton(context)
+        } catch (e: Exception) {
+            // Fallback to XML for TV devices without Compose runtime (should not happen after Step 5)
+            setContentView(R.layout.dialog_settings)
+            sbTabs = findViewById(R.id.sbTabs)
+            val tabContentAdapter = object : SegmentedButtonTabsAdapter(sbTabs, findViewById(R.id.flTabsContent)) {
+                override fun createContentViewForSegmentButtonId(id: Int): View {
+                    return when (id) {
+                        R.id.btnMainTab -> {
+                            mainView = MainSettingsView(context)
+                            mainView!!
+                        }
+                        R.id.btnShortcutsTab -> ShortcutsSettingsView(context)
+                        else -> {
+                            val view = VersionSettingsView(context)
+                            view.callback = this@SettingsDialog
+                            view
+                        }
                     }
                 }
             }
