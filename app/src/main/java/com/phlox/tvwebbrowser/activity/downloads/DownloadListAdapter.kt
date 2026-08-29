@@ -16,7 +16,8 @@ import de.halfbit.pinnedsection.PinnedSectionListView
  */
 
 class DownloadListAdapter(private val downloadsActivity: DownloadsActivity) : BaseAdapter(), PinnedSectionListView.PinnedSectionListAdapter {
-    private val downloads = ArrayList<Download>()
+    val downloads = ArrayList<Download>()
+    val items get() = downloads
     private var lastHeaderDate: Long = -1
     var realCount: Long = 0
         private set

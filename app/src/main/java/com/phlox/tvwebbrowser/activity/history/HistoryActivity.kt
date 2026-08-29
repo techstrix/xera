@@ -12,11 +12,19 @@ import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.databinding.ActivityHistoryBinding
+import com.phlox.tvwebbrowser.model.HistoryItem
 import com.phlox.tvwebbrowser.singleton.AppDatabase
+import com.phlox.tvwebbrowser.ui.screens.HistoryScreen
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 import com.phlox.tvwebbrowser.utils.BaseAnimationListener
 import com.phlox.tvwebbrowser.utils.Utils
 import com.phlox.tvwebbrowser.utils.VoiceSearchHelper
@@ -37,6 +45,11 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
     private val voiceSearchHelper = VoiceSearchHelper(this, VOICE_SEARCH_REQUEST_CODE,
         VOICE_SEARCH_PERMISSIONS_REQUEST_CODE)
 
+    // Compose state (Step 8 migration) — keeps single source of truth with adapter
+    private val composeItems = mutableStateListOf<HistoryItem>()
+    private var composeIsMultiSelect by mutableStateOf(false)
+    private var composeSelectedIds by mutableStateOf(setOf<Long>())
+
     internal var onListScrollListener: AbsListView.OnScrollListener = object : AbsListView.OnScrollListener {
         override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
 
@@ -51,31 +64,66 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        vb = ActivityHistoryBinding.inflate(layoutInflater)
-        setContentView(vb.root)
-
         historyModel = ActiveModelsRepository.get(HistoryModel::class, this)
 
-        ibDelete = findViewById(R.id.ibDelete)
+        // Keep ViewBinding for legacy fallback (interim AndroidViewBinding step), but primary is Compose
+        // Compose path — uses HistoryScreen with same ViewModel, preserving pagination/voice/search
+        setContent {
+            XeraTheme {
+                HistoryScreen(
+                    items = composeItems,
+                    onItemClick = { item -> onHistoryItemClick(item) },
+                    onItemLongClick = { item -> onHistoryItemLongClick(item) },
+                    onClearHistory = { showDeleteDialog(true) },
+                    onDeleteSelected = { showDeleteDialog(false) },
+                    isMultiSelect = composeIsMultiSelect,
+                    selectedIds = composeSelectedIds,
+                    onLoadMore = { historyModel.loadItems(false, composeItems.size.toLong()) }
+                )
+            }
+        }
 
+        // Legacy ViewBinding still initialized for fallback/transition (not set as content)
+        // Keeps adapter in sync so existing tests/legacy paths still work
+        vb = ActivityHistoryBinding.inflate(layoutInflater)
+        // Do not setContentView(vb.root) — Compose is now host; keep adapter for data sync only
         adapter = HistoryAdapter()
-        vb.listView.adapter = adapter
-
-        vb.listView.setOnScrollListener(onListScrollListener)
-        vb.listView.onItemClickListener = this
-        vb.listView.onItemLongClickListener = this
 
         historyModel.lastLoadedItems.subscribe(this, false) {
             if (it.isEmpty()) return@subscribe
             adapter!!.addItems(it)
-            vb.listView.requestFocus()
+            composeItems.clear()
+            composeItems.addAll(adapter!!.items.filter { !it.isDateHeader || true })
         }
 
         historyModel.loadItems(false)
     }
 
+    private fun onHistoryItemClick(item: HistoryItem) {
+        if (item.isDateHeader) return
+        if (composeIsMultiSelect) {
+            val newSet = composeSelectedIds.toMutableSet()
+            if (newSet.contains(item.id)) newSet.remove(item.id) else newSet.add(item.id)
+            composeSelectedIds = newSet
+            item.selected = newSet.contains(item.id)
+        } else {
+            val resultIntent = Intent()
+            resultIntent.putExtra(KEY_URL, item.url)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+    }
+
+    private fun onHistoryItemLongClick(item: HistoryItem) {
+        if (composeIsMultiSelect) return
+        composeIsMultiSelect = true
+        composeSelectedIds = setOf(item.id)
+        item.selected = true
+    }
+
     private fun showDeleteDialog(deleteAll: Boolean) {
-        if (adapter!!.items.isEmpty() || (adapter!!.selectedItems.isEmpty() && !deleteAll)) return
+        val hasComposeSelection = composeItems.any { composeSelectedIds.contains(it.id) || it.selected }
+        if (adapter!!.items.isEmpty() || ((adapter!!.selectedItems.isEmpty() && !hasComposeSelection) && !deleteAll)) return
         AlertDialog.Builder(this)
                 .setTitle(R.string.delete)
                 .setMessage(if (deleteAll) R.string.msg_delete_history_all else R.string.msg_delete_history)
@@ -84,9 +132,18 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
                         if (deleteAll) {
                             AppDatabase.db.historyDao().deleteWhereTimeLessThan(Long.MAX_VALUE)
                             adapter!!.erase()
+                            composeItems.clear()
+                            composeSelectedIds = emptySet()
+                            composeIsMultiSelect = false
                         } else {
-                            AppDatabase.db.historyDao().delete(*(adapter!!.selectedItems).toTypedArray())
-                            adapter!!.remove(adapter!!.selectedItems)
+                            val toDelete = adapter!!.selectedItems.ifEmpty {
+                                composeItems.filter { composeSelectedIds.contains(it.id) || it.selected }
+                            }
+                            AppDatabase.db.historyDao().delete(*toDelete.toTypedArray())
+                            adapter!!.remove(toDelete)
+                            composeItems.removeAll(toDelete.toSet())
+                            composeSelectedIds = emptySet()
+                            composeIsMultiSelect = false
                         }
                     }
                 }
@@ -107,6 +164,9 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
                                 return
                             }
                             adapter!!.erase()
+                            composeItems.clear()
+                            composeSelectedIds = emptySet()
+                            composeIsMultiSelect = false
                             historyModel.searchQuery = text
                             historyModel.loadItems(true)
                         }
@@ -174,6 +234,15 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
     }
 
     override fun onBackPressed() {
+        if (composeIsMultiSelect) {
+            composeIsMultiSelect = false
+            composeSelectedIds = emptySet()
+            // clear selected flags
+            composeItems.forEach { it.selected = false }
+            adapter!!.isMultiselectMode = false
+            updateMenu()
+            return
+        }
         if (adapter!!.isMultiselectMode) {
             adapter!!.isMultiselectMode = false
             updateMenu()

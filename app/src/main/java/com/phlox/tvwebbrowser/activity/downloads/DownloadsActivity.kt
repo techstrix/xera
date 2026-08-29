@@ -16,13 +16,20 @@ import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.phlox.tvwebbrowser.BuildConfig
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.databinding.ActivityDownloadsBinding
 import com.phlox.tvwebbrowser.model.Download
+import com.phlox.tvwebbrowser.ui.screens.DownloadsScreen
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 import com.phlox.tvwebbrowser.utils.Utils
 import com.phlox.tvwebbrowser.utils.activemodel.ActiveModelsRepository
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +44,9 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
 
     private lateinit var activeDownloadsModel: ActiveDownloadsModel
     private lateinit var downloadsHistoryModel: DownloadsHistoryModel
+
+    // Compose state (Step 8)
+    private val composeItems = mutableStateListOf<Download>()
 
     internal var onListScrollListener: AbsListView.OnScrollListener = object : AbsListView.OnScrollListener {
         override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
@@ -53,33 +63,61 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate this:" + System.identityHashCode(this))
-        vb = ActivityDownloadsBinding.inflate(layoutInflater)
-        setContentView(vb.root)
-
         activeDownloadsModel = ActiveModelsRepository.get(ActiveDownloadsModel::class, this)
         downloadsHistoryModel = ActiveModelsRepository.get(DownloadsHistoryModel::class, this)
 
+        // Compose primary (Step 8) — keeps ViewBinding for fallback
+        setContent {
+            XeraTheme {
+                DownloadsScreen(
+                    items = composeItems,
+                    onItemClick = { dl -> handleDownloadClick(dl) },
+                    onLoadMore = { downloadsHistoryModel.loadNextItems() }
+                )
+            }
+        }
+        // Legacy ViewBinding kept for transition (not set as content)
+        vb = ActivityDownloadsBinding.inflate(layoutInflater)
         adapter = DownloadListAdapter(this)
-        vb.listView.adapter = adapter
-
-        vb.listView.setOnScrollListener(onListScrollListener)
-        vb.listView.onItemClickListener = this
-        vb.listView.onItemLongClickListener = this
 
         downloadsHistoryModel.lastLoadedItems.subscribe(this, false, {
             if (it.isNotEmpty()) {
-                vb.tvPlaceholder.visibility = View.GONE
                 adapter.addItems(it)
-                vb.listView.requestFocus()
+                composeItems.clear()
+                composeItems.addAll(adapter.items)
             }
         })
 
         if (downloadsHistoryModel.allItems.isEmpty()) {
             downloadsHistoryModel.loadNextItems()
         } else {
-            vb.tvPlaceholder.visibility = View.GONE
             adapter.addItems(downloadsHistoryModel.allItems)
-            vb.listView.requestFocus()
+            composeItems.clear()
+            composeItems.addAll(adapter.items)
+        }
+    }
+
+    private fun handleDownloadClick(download: Download) {
+        if (download.isDateHeader) return
+        if (download.size != download.bytesReceived) return
+        val fileURI = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Uri.parse(download.filepath)
+        } else {
+            val file = File(download.filepath)
+            if (!file.exists()) {
+                Utils.showToast(this, R.string.file_not_found)
+                return
+            }
+            FileProvider.getUriForFile(this@DownloadsActivity, BuildConfig.APPLICATION_ID + ".provider", file)
+        }
+        val openIntent = Intent(Intent.ACTION_VIEW)
+        val mimeType = contentResolver.getType(fileURI)
+        openIntent.setDataAndType(fileURI, mimeType)
+        openIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        try {
+            startActivity(openIntent)
+        } catch (e: ActivityNotFoundException) {
+            Utils.showToast(this, getString(R.string.no_app_for_file_type))
         }
     }
 
