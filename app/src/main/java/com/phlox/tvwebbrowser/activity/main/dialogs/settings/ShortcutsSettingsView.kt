@@ -2,23 +2,23 @@ package com.phlox.tvwebbrowser.activity.main.dialogs.settings
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.RelativeLayout
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.res.ResourcesCompat
 import com.phlox.tvwebbrowser.R
-import com.phlox.tvwebbrowser.activity.main.SettingsModel
 import com.phlox.tvwebbrowser.activity.main.dialogs.ShortcutDialog
-import com.phlox.tvwebbrowser.databinding.ViewShortcutBinding
 import com.phlox.tvwebbrowser.singleton.shortcuts.Shortcut
 import com.phlox.tvwebbrowser.singleton.shortcuts.ShortcutMgr
-import com.phlox.tvwebbrowser.utils.activemodel.ActiveModelsRepository
-import com.phlox.tvwebbrowser.utils.activity
+import com.phlox.tvwebbrowser.ui.components.ShortcutRow
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 
 
 class ShortcutsSettingsView @JvmOverloads constructor(
@@ -71,17 +71,20 @@ class ShortcutsSettingsView @JvmOverloads constructor(
     inner class ShortcutItemView @JvmOverloads constructor(
             context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     ) : RelativeLayout(context, attrs, defStyleAttr) {
-        private var vb: ViewShortcutBinding =
-            ViewShortcutBinding.inflate(LayoutInflater.from(context), this)
+        private var titleState by mutableStateOf("")
+        private var keyState by mutableStateOf("")
+        private val composeView = ComposeView(context).apply {
+            setContent { XeraTheme { ShortcutRow(title = titleState, key = keyState) } }
+        }
+
+        init {
+            addView(composeView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        }
 
         fun bind(position: Int, titleRes: Int) {
             val shortcut = ShortcutMgr.getInstance().findForId(position)
-
-            vb.tvTitle.setText(titleRes)
-            vb.tvKey.text = if (shortcut.keyCode == 0)
-                context.getString(R.string.not_set)
-            else
-                Shortcut.shortcutKeysToString(shortcut, context)
+            titleState = context.getString(titleRes)
+            keyState = if (shortcut.keyCode == 0) context.getString(R.string.not_set) else Shortcut.shortcutKeysToString(shortcut, context)
         }
     }
 }

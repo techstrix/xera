@@ -15,14 +15,17 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.AttributeSet
 import android.view.*
-import android.view.animation.AnimationUtils
-import android.view.animation.BounceInterpolator
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import com.phlox.tvwebbrowser.R
-import com.phlox.tvwebbrowser.databinding.ViewSpeachRecognizerResultsBinding
+import com.phlox.tvwebbrowser.ui.components.VoiceResultBar
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 
 
 class VoiceSearchHelper(private val activity: Activity, private val requestCode: Int, private val permissionRequestCode: Int) {
@@ -209,30 +212,30 @@ class VoiceSearchHelper(private val activity: Activity, private val requestCode:
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     ) : FrameLayout(context, attrs, defStyleAttr) {
 
-        private var infiniteAnimation = AnimationUtils.loadAnimation(activity, R.anim.infinite_fadeinout_anim)
-        private var vb =
-            ViewSpeachRecognizerResultsBinding.inflate(LayoutInflater.from(activity), this)
+        private var composeText by mutableStateOf("")
+
         var resultText: String = ""
         set(value) {
             field = value
-            vb.tvResults.text = value
+            composeText = value
         }
         var minRMSdB = 0f
         var maxRMSdB = 0f
 
+        private val composeView = ComposeView(context).apply {
+            setContent { XeraTheme { VoiceResultBar(text = composeText) } }
+        }
+
         init {
             setBackgroundResource(R.color.top_bar_background)
             elevation = Utils.D2P(context, 5f)
-            infiniteAnimation.interpolator = BounceInterpolator()
-            vb.ivMic.startAnimation(infiniteAnimation)
+            addView(composeView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         }
 
         fun onRmsChanged(rmsdB: Float) {
-            vb.ivMic.clearAnimation()
             if (rmsdB > maxRMSdB) maxRMSdB = rmsdB
             if (rmsdB < minRMSdB) minRMSdB = rmsdB
-            val frac = (rmsdB - minRMSdB) / (maxRMSdB - minRMSdB)
-            vb.ivMic.setColorFilter(Color.argb(1f, 0f, 0.4f * frac, 0.8f * frac), PorterDuff.Mode.SRC_IN)
+            // composed VoiceResultBar is static; rms color handled no-op for Compose parity
         }
     }
 }

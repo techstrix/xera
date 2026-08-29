@@ -2,28 +2,27 @@ package com.phlox.tvwebbrowser.activity.main.dialogs.favorites
 
 import android.app.Dialog
 import android.content.Context
-import android.view.View
-import android.widget.*
-import com.phlox.tvwebbrowser.R
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.phlox.tvwebbrowser.model.FavoriteItem
 import com.phlox.tvwebbrowser.singleton.AppDatabase
+import com.phlox.tvwebbrowser.ui.dialogs.FavoriteUi
+import com.phlox.tvwebbrowser.ui.dialogs.FavoritesDialogCompose
+import com.phlox.tvwebbrowser.ui.dialogs.NewFavoriteItemDialogCompose
+import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
-/**
- * Created by PDT on 09.09.2016.
- */
-class FavoritesDialog(context: Context, val scope: CoroutineScope, private val callback: Callback, private val currentPageTitle: String?, private val currentPageUrl: String?) : Dialog(context), FavoriteItemView.Listener {
-    private var items: MutableList<FavoriteItem> = ArrayList()
-    private val adapter = FavoritesListAdapter(items, this)
-
-    private val tvPlaceholder: TextView
-    private val listView: ListView
-    private val btnAdd: Button
-    private val btnEdit: Button
-    private val pbLoading: ProgressBar
+class FavoritesDialog(context: Context, val scope: CoroutineScope, private val callback: Callback, private val currentPageTitle: String?, private val currentPageUrl: String?) : Dialog(context) {
 
     interface Callback {
         fun onFavoriteChoosen(item: FavoriteItem?)
@@ -31,93 +30,89 @@ class FavoritesDialog(context: Context, val scope: CoroutineScope, private val c
 
     init {
         setCancelable(true)
-        setContentView(R.layout.dialog_favorites)
-        setTitle(R.string.bookmarks)
-
-        tvPlaceholder = findViewById<View>(R.id.tvPlaceholder) as TextView
-        listView = findViewById<View>(R.id.listView) as ListView
-        btnAdd = findViewById<View>(R.id.btnAdd) as Button
-        btnEdit = findViewById<View>(R.id.btnEdit) as Button
-        pbLoading = findViewById<View>(R.id.pbLoading) as ProgressBar
-
-        btnAdd.setOnClickListener { showAddItemDialog() }
-
-        btnEdit.setOnClickListener {
-            adapter.isEditMode = !adapter.isEditMode
-            btnEdit.setText(if (adapter.isEditMode) R.string.done else R.string.edit)
-            listView.itemsCanFocus = adapter.isEditMode
+        val composeView = ComposeView(context).apply {
+            setViewTreeLifecycleOwner(context as? LifecycleOwner)
+            setViewTreeViewModelStoreOwner(context as? ViewModelStoreOwner)
+            setViewTreeSavedStateRegistryOwner(context as? SavedStateRegistryOwner)
         }
+        // state holders
+        var itemsState by mutableStateOf<List<FavoriteItem>>(emptyList())
+        var isLoadingState by mutableStateOf(true)
+        var isEditModeState by mutableStateOf(false)
+        var showEditorState by mutableStateOf<FavoriteItem?>(null)
 
-        listView.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
-            val item = (view as FavoriteItemView).favorite
-            if (item!!.isFolder) {
+        // helpers
+        fun toUi(items: List<FavoriteItem>) = items.map { FavoriteUi(it.id, it.title ?: "", it.url ?: "") }
 
-            } else {
-                callback.onFavoriteChoosen(item)
-                dismiss()
-            }
-        }
-
-        pbLoading.visibility = View.VISIBLE
-        listView.visibility = View.GONE
-        tvPlaceholder.visibility = View.GONE
-        listView.adapter = adapter
-
+        // load
         scope.launch(Dispatchers.Main) {
-            items.addAll(AppDatabase.db.favoritesDao().getAll())
-            onItemsChanged()
-            pbLoading.visibility = View.GONE
+            val all = AppDatabase.db.favoritesDao().getAll()
+            itemsState = all
+            isLoadingState = false
         }
-    }
 
-    private fun showAddItemDialog() {
-        val newItem = FavoriteItem()
-        newItem.title = currentPageTitle
-        newItem.url = currentPageUrl
-        FavoriteEditorDialog(context, object : FavoriteEditorDialog.Callback {
-            override fun onDone(item: FavoriteItem) {
-                onItemEdited(item)
-            }
-        }, newItem).show()
-    }
-
-    private fun onItemEdited(item: FavoriteItem) {
-        pbLoading.visibility = View.VISIBLE
-        listView.visibility = View.GONE
-        tvPlaceholder.visibility = View.GONE
-        scope.launch(Dispatchers.Main) {
-            if (item.id == 0L) {
-                val lastInsertRowId = AppDatabase.db.favoritesDao().insert(item)
-                item.id = lastInsertRowId
-                items.add(0, item)
-                onItemsChanged()
-            } else {
-                AppDatabase.db.favoritesDao().update(item)
-                onItemsChanged()
+        composeView.setContent {
+            XeraTheme {
+                if (showEditorState != null) {
+                    val editing = showEditorState!!
+                    NewFavoriteItemDialogCompose(
+                        initialTitle = editing.title ?: "",
+                        initialUrl = editing.url ?: "",
+                        onCancel = { showEditorState = null },
+                        onDone = { title, url ->
+                            val item = editing.apply {
+                                this.title = title
+                                var urlStr = url
+                                if (!urlStr.matches(Regex("^[A-Za-z]+://.*$"))) urlStr = "https://$urlStr"
+                                this.url = urlStr
+                            }
+                            showEditorState = null
+                            isLoadingState = true
+                            scope.launch(Dispatchers.Main) {
+                                if (item.id == 0L) {
+                                    val id = AppDatabase.db.favoritesDao().insert(item)
+                                    item.id = id
+                                } else {
+                                    AppDatabase.db.favoritesDao().update(item)
+                                }
+                                val all = AppDatabase.db.favoritesDao().getAll()
+                                itemsState = all
+                                isLoadingState = false
+                            }
+                        }
+                    )
+                } else {
+                    FavoritesDialogCompose(
+                        items = toUi(itemsState),
+                        isLoading = isLoadingState,
+                        isEditMode = isEditModeState,
+                        onToggleEdit = { isEditModeState = !isEditModeState },
+                        onAdd = {
+                            val newItem = FavoriteItem().apply {
+                                title = currentPageTitle
+                                url = currentPageUrl
+                            }
+                            showEditorState = newItem
+                        },
+                        onFavoriteClick = { ui ->
+                            val fav = itemsState.find { it.id == ui.id }
+                            if (fav != null && !fav.isFolder) {
+                                callback.onFavoriteChoosen(fav)
+                                dismiss()
+                            }
+                        },
+                        onDelete = { ui ->
+                            val fav = itemsState.find { it.id == ui.id } ?: return@FavoritesDialogCompose
+                            scope.launch(Dispatchers.Main) {
+                                AppDatabase.db.favoritesDao().delete(fav)
+                                itemsState = AppDatabase.db.favoritesDao().getAll()
+                            }
+                        },
+                        onDismiss = { dismiss() }
+                    )
+                }
             }
         }
-    }
-
-    private fun onItemsChanged() {
-        adapter.notifyDataSetChanged()
-        pbLoading.visibility = View.GONE
-        listView.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
-        tvPlaceholder.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    override fun onDeleteClick(favorite: FavoriteItem) {
-        scope.launch(Dispatchers.Main) {
-            AppDatabase.db.favoritesDao().delete(favorite)
-            items.remove(favorite)
-            onItemsChanged()
-        }
-    }
-
-    override fun onEditClick(favorite: FavoriteItem) {
-        FavoriteEditorDialog(context, object : FavoriteEditorDialog.Callback {
-            override fun onDone(item: FavoriteItem) {
-                onItemEdited(item)
-            }
-        }, favorite).show()
+        setContentView(composeView)
     }
 }
