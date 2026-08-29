@@ -20,12 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.phlox.tvwebbrowser.R
-import com.phlox.tvwebbrowser.databinding.ActivityHistoryBinding
 import com.phlox.tvwebbrowser.model.HistoryItem
 import com.phlox.tvwebbrowser.singleton.AppDatabase
 import com.phlox.tvwebbrowser.ui.screens.HistoryScreen
 import com.phlox.tvwebbrowser.ui.theme.XeraTheme
-import com.phlox.tvwebbrowser.utils.BaseAnimationListener
 import com.phlox.tvwebbrowser.utils.Utils
 import com.phlox.tvwebbrowser.utils.VoiceSearchHelper
 import com.phlox.tvwebbrowser.utils.activemodel.ActiveModelsRepository
@@ -38,7 +36,6 @@ import kotlinx.coroutines.launch
 
 class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
 
-    private lateinit var vb: ActivityHistoryBinding
     private var ibDelete: ImageButton? = null
     private var adapter: HistoryAdapter? = null
     private lateinit var historyModel: HistoryModel
@@ -88,10 +85,6 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
             }
         }
 
-        // Legacy ViewBinding still initialized for fallback/transition (not set as content)
-        // Keeps adapter in sync so existing tests/legacy paths still work
-        vb = ActivityHistoryBinding.inflate(layoutInflater)
-        // Do not setContentView(vb.root) — Compose is now host; keep adapter for data sync only
         adapter = HistoryAdapter()
 
         historyModel.lastLoadedItems.subscribe(this, false) {
@@ -221,6 +214,8 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
     }
 
     private fun updateMenu() {
+        // Legacy ListView path only — Compose uses hasSelection in HistoryScreen
+        if (ibDelete == null) return
         val selection = adapter!!.selectedItems
         if (selection.isEmpty()) {
             if (ibDelete!!.visibility == View.GONE) return

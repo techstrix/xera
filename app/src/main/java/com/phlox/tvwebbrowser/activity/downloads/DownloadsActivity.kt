@@ -26,7 +26,6 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.phlox.tvwebbrowser.BuildConfig
 import com.phlox.tvwebbrowser.R
-import com.phlox.tvwebbrowser.databinding.ActivityDownloadsBinding
 import com.phlox.tvwebbrowser.model.Download
 import com.phlox.tvwebbrowser.ui.screens.DownloadsScreen
 import com.phlox.tvwebbrowser.ui.theme.XeraTheme
@@ -38,7 +37,6 @@ import java.io.File
 import java.util.*
 
 class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, ActiveDownloadsModel.Listener, AdapterView.OnItemLongClickListener{
-    private lateinit var vb: ActivityDownloadsBinding
     private lateinit var adapter: DownloadListAdapter
     private val listeners = ArrayList<ActiveDownloadsModel.Listener>()
 
@@ -66,7 +64,6 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
         activeDownloadsModel = ActiveModelsRepository.get(ActiveDownloadsModel::class, this)
         downloadsHistoryModel = ActiveModelsRepository.get(DownloadsHistoryModel::class, this)
 
-        // Compose primary (Step 8) — keeps ViewBinding for fallback
         setContent {
             XeraTheme {
                 DownloadsScreen(
@@ -77,8 +74,6 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
                 )
             }
         }
-        // Legacy ViewBinding kept for transition (not set as content)
-        vb = ActivityDownloadsBinding.inflate(layoutInflater)
         adapter = DownloadListAdapter(this)
 
         downloadsHistoryModel.lastLoadedItems.subscribe(this, false, {
