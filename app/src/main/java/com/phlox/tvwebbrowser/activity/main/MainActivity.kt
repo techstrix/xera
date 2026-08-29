@@ -42,7 +42,6 @@ import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
@@ -51,6 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.phlox.tvwebbrowser.AppContext
 import com.phlox.tvwebbrowser.Config
 import com.phlox.tvwebbrowser.R
@@ -175,53 +177,51 @@ open class MainActivity : AppCompatActivity() {
         uiHandler = Handler()
         prefs = getSharedPreferences(TVBro.MAIN_PREFS_NAME, Context.MODE_PRIVATE)
 
-        setContent {
-            XeraTheme {
-                MainScreen(
-                    url = addressText,
-                    tabs = tabsUi,
-                    isMenuVisible = isMenuVisible,
-                    thumbnail = thumbnail,
-                    isProgressVisible = isProgressVisible,
-                    progress = webProgress,
-                    isGenericLoading = isGenericLoading,
-                    canGoBack = canGoBack,
-                    canGoForward = canGoForward,
-                    isShieldsOn = shieldsOn,
-                    blockedCount = blockedAds,
-                    blockedPopups = blockedPopups,
-                    isCursorMenuVisible = isCursorMenuVisible,
-                    cursorLayout = cursorLayout,
-                    onCursorLayoutCreated = { layout ->
-                        if (cursorLayout == null) {
-                            cursorLayout = layout
-                            Log.d(TAG, "onCursorLayoutCreated, triggering pending loadState")
-                            if (pendingLoadState) {
-                                pendingLoadState = false
-                                loadState()
-                            }
-                        }
-                    },
-                    onUrlChanged = { addressText = it },
-                    onSearch = { search(addressText) },
-                    onMenu = { closeWindow() },
-                    onVoice = { initiateVoiceSearch() },
-                    onHistory = { showHistory() },
-                    onFavorites = { showFavorites() },
-                    onDownloads = { showDownloads() },
-                    onIncognito = { toggleIncognitoMode() },
-                    onSettings = { showSettings() },
-                    onTabSelected = { ui -> tabByTitleIndex(tabsUi.indexOf(ui))?.let { changeTab(it) } },
-                    onTabClose = { ui -> tabByTitleIndex(tabsUi.indexOf(ui))?.let { closeTab(it) } },
-                    onAddTab = { openInNewTab(settingsModel.homePage, tabsModel.tabsStates.size) },
-                    onBack = { navigateBack() },
-                    onForward = {
-                        val tab = tabsModel.currentTab.value ?: return@MainScreen
-                        if (tab.webEngine.canGoForward()) tab.webEngine.goForward()
-                    },
-                    onRefresh = { refresh() },
-                    onCloseTab = { tabsModel.currentTab.value?.let { closeTab(it) } },
-                    onHome = { navigate(settingsModel.homePage) },
+        // Hybrid root: CursorLayout (WebView container) as traditional view below Compose overlay — fixes white-screen crash (was AndroidView factory race)
+        cursorLayout = CursorLayout(this)
+        val root = android.widget.FrameLayout(this)
+        root.addView(cursorLayout, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        val composeView = androidx.compose.ui.platform.ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@MainActivity)
+            setViewTreeViewModelStoreOwner(this@MainActivity)
+            setViewTreeSavedStateRegistryOwner(this@MainActivity)
+            setContent {
+                XeraTheme {
+                    MainScreen(
+                        url = addressText,
+                        tabs = tabsUi,
+                        isMenuVisible = isMenuVisible,
+                        thumbnail = thumbnail,
+                        isProgressVisible = isProgressVisible,
+                        progress = webProgress,
+                        isGenericLoading = isGenericLoading,
+                        canGoBack = canGoBack,
+                        canGoForward = canGoForward,
+                        isShieldsOn = shieldsOn,
+                        blockedCount = blockedAds,
+                        blockedPopups = blockedPopups,
+                        isCursorMenuVisible = isCursorMenuVisible,
+                        hasExternalContainer = true,
+                        onUrlChanged = { addressText = it },
+                        onSearch = { search(addressText) },
+                        onMenu = { closeWindow() },
+                        onVoice = { initiateVoiceSearch() },
+                        onHistory = { showHistory() },
+                        onFavorites = { showFavorites() },
+                        onDownloads = { showDownloads() },
+                        onIncognito = { toggleIncognitoMode() },
+                        onSettings = { showSettings() },
+                        onTabSelected = { ui -> tabByTitleIndex(tabsUi.indexOf(ui))?.let { changeTab(it) } },
+                        onTabClose = { ui -> tabByTitleIndex(tabsUi.indexOf(ui))?.let { closeTab(it) } },
+                        onAddTab = { openInNewTab(settingsModel.homePage, tabsModel.tabsStates.size) },
+                        onBack = { navigateBack() },
+                        onForward = {
+                            val tab = tabsModel.currentTab.value ?: return@MainScreen
+                            if (tab.webEngine.canGoForward()) tab.webEngine.goForward()
+                        },
+                        onRefresh = { refresh() },
+                        onCloseTab = { tabsModel.currentTab.value?.let { closeTab(it) } },
+                        onHome = { navigate(settingsModel.homePage) },
                     onAdBlock = { showAdBlockOverlay() },
                     onPopupBlock = { lifecycleScope.launch(Dispatchers.Main) { showPopupBlockOptions() } },
                     onGrab = { tabsModel.currentTab.value?.webEngine?.setVirtualCursorMode(false); isCursorMenuVisible = false },
@@ -229,9 +229,12 @@ open class MainActivity : AppCompatActivity() {
                     onZoomOut = { tabsModel.currentTab.value?.webEngine?.zoomOut(); isCursorMenuVisible = false },
                     onContextMenu = { isCursorMenuVisible = false; lifecycleScope.launch(Dispatchers.Main) { showPopupBlockOptions() } },
                     onDpad = { tabsModel.currentTab.value?.webEngine?.setVirtualCursorMode(true); isCursorMenuVisible = false }
-                )
+                    )
+                }
             }
         }
+        root.addView(composeView, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        setContentView(root)
 
         config.userAgentString.subscribe(this.lifecycle, false) {
             for (tab in tabsModel.tabsStates) {
@@ -283,13 +286,8 @@ open class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        // Defer loadState until CursorLayout is created in Compose (fixes white screen -> crash)
-        if (cursorLayout != null) {
-            loadState()
-        } else {
-            Log.d(TAG, "deferring loadState until CursorLayout ready")
-            pendingLoadState = true
-        }
+        // Hybrid: cursorLayout already attached to root, safe to init WebEngine now
+        loadState()
     }
 
     private fun refreshTabsUi() {
