@@ -24,6 +24,7 @@ import com.phlox.tvwebbrowser.model.HistoryItem
 import com.phlox.tvwebbrowser.singleton.AppDatabase
 import com.phlox.tvwebbrowser.ui.screens.HistoryScreen
 import com.phlox.tvwebbrowser.ui.theme.XeraTheme
+import com.phlox.tvwebbrowser.utils.BaseAnimationListener
 import com.phlox.tvwebbrowser.utils.Utils
 import com.phlox.tvwebbrowser.utils.VoiceSearchHelper
 import com.phlox.tvwebbrowser.utils.activemodel.ActiveModelsRepository
