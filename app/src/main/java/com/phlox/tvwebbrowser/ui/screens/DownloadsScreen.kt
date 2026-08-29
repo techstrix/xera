@@ -1,6 +1,7 @@
 package com.phlox.tvwebbrowser.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,7 +52,7 @@ fun DownloadsScreen(
                             url = dl.url,
                             progress = prog,
                             isCircularVisible = dl.size == 0L,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            modifier = Modifier.padding(vertical = 4.dp).clickable { onItemClick(dl) }
                         )
                     }
                 }

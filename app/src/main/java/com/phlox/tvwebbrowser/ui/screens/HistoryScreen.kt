@@ -45,6 +45,10 @@ fun HistoryScreen(
         }
     }
 
+    // Single source of truth for selection — keeps row rendering and delete availability in sync
+    fun isSelected(item: HistoryItem): Boolean = selectedIds.contains(item.id) || item.selected
+    val hasSelection = items.any { !it.isDateHeader && isSelected(it) }
+
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(
             state = listState,
@@ -56,7 +60,7 @@ fun HistoryScreen(
                     // Use title as date header text
                     HistoryHeader(date = item.title ?: "")
                 } else {
-                    val selected = selectedIds.contains(item.id) || item.selected
+                    val selected = isSelected(item)
                     val timeStr = if (item.time != 0L) java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date(item.time)) else ""
                     HistoryItem(
                         time = timeStr,
@@ -81,7 +85,7 @@ fun HistoryScreen(
             modifier = Modifier.align(Alignment.TopEnd).padding(5.dp)
         ) { Text("Clear") }
         // Delete selected (centerEnd, matches ibDelete visibility gone -> visible with animation)
-        if (isMultiSelect && selectedIds.isNotEmpty()) {
+        if (isMultiSelect && hasSelection) {
             FilledIconButton(
                 onClick = onDeleteSelected,
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp)

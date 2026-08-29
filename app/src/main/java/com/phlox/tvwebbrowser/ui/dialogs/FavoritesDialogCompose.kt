@@ -1,5 +1,6 @@
 package com.phlox.tvwebbrowser.ui.dialogs
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,7 +43,12 @@ fun FavoritesDialogCompose(
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(items, key = { it.id }) { fav ->
-                            FavoriteItemRow(title = fav.title, url = fav.url, onDelete = { onDelete(fav) }, modifier = Modifier.fillMaxWidth())
+                            FavoriteItemRow(
+                                title = fav.title,
+                                url = fav.url,
+                                onDelete = { onDelete(fav) },
+                                modifier = Modifier.fillMaxWidth().clickable { onFavoriteClick(fav) }
+                            )
                             Divider()
                         }
                     }
