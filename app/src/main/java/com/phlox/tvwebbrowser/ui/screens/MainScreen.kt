@@ -80,6 +80,7 @@ fun MainScreen(
     lastCrashLog: String? = null,
     onRetryLoad: () -> Unit = {},
     onDismissCrashLog: () -> Unit = {},
+    onDismissLoadError: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // When hasExternalContainer is true, Activity hosts CursorLayout via FrameLayout outside Compose (more stable, fixes white-screen crash)
@@ -275,7 +276,7 @@ fun MainScreen(
                     Text(loadError ?: "", color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                     Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = onRetryLoad) { Text("Retry") }
-                        OutlinedButton(onClick = onDismissCrashLog) { Text("Dismiss") }
+                        OutlinedButton(onClick = onDismissLoadError) { Text("Dismiss") }
                     }
                 }
             }

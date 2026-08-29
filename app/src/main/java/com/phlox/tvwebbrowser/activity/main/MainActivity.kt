@@ -153,6 +153,7 @@ open class MainActivity : AppCompatActivity() {
     private var pendingLoadState = false
     private var loadError by mutableStateOf<String?>(null)
     private var lastCrashLog by mutableStateOf<String?>(null)
+    private var startupFailed = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,6 +225,7 @@ open class MainActivity : AppCompatActivity() {
                             lastCrashLog = null
                             try { java.io.File(filesDir, "crashes").listFiles()?.forEach { it.delete() } } catch (ignore: Exception) {}
                         },
+                        onDismissLoadError = { loadError = null },
                         onUrlChanged = { addressText = it },
                         onSearch = { search(addressText) },
                         onMenu = { closeWindow() },
@@ -312,6 +314,7 @@ open class MainActivity : AppCompatActivity() {
         loadState()
         } catch (e: Exception) {
             Log.e(TAG, "onCreate failed", e)
+            startupFailed = true
             loadError = "onCreate failed: ${e.message}\n${Log.getStackTraceString(e).take(3000)}"
             isGenericLoading = false
             try {
@@ -758,28 +761,40 @@ open class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        bindService(Intent(this, DownloadService::class.java), downloadServiceConnection, Context.BIND_AUTO_CREATE)
+        if (startupFailed) return
+        try { bindService(Intent(this, DownloadService::class.java), downloadServiceConnection, Context.BIND_AUTO_CREATE) } catch (ignore: Exception) {}
     }
 
     override fun onStop() {
-        super.onStop()
-        unbindService(downloadServiceConnection)
+        if (!startupFailed) {
+            try { unbindService(downloadServiceConnection) } catch (ignore: Exception) {}
+        }
         downloadService = null
+        super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
+        if (startupFailed) return
         val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
         registerReceiver(mConnectivityChangeReceiver, intentFilter)
-        tabsModel.currentTab.value?.webEngine?.onResume()
+        if (::tabsModel.isInitialized) {
+            tabsModel.currentTab.value?.webEngine?.onResume()
+        }
     }
 
     override fun onPause() {
-        unregisterReceiver(mConnectivityChangeReceiver)
-        tabsModel.currentTab.value?.apply {
-            webEngine.onPause()
-            onPause()
-            runBlocking { tabsModel.saveTab(this@apply) }
+        if (startupFailed) {
+            super.onPause()
+            return
+        }
+        try { unregisterReceiver(mConnectivityChangeReceiver) } catch (ignore: Exception) {}
+        if (::tabsModel.isInitialized) {
+            tabsModel.currentTab.value?.apply {
+                webEngine.onPause()
+                onPause()
+                runBlocking { tabsModel.saveTab(this@apply) }
+            }
         }
         super.onPause()
     }
@@ -958,6 +973,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun handleBackNavigation() {
         Log.d(TAG, "handleBackNavigation")
+        if (startupFailed || !::tabsModel.isInitialized) return
         if (tabsModel.currentTab.value?.webEngine?.isVirtualCursorMode() == false) {
             tabsModel.currentTab.value?.webEngine?.setVirtualCursorMode(true)
             backNavigationEventsAdapter.gameControllersLongPressBForBackNavigation = false
