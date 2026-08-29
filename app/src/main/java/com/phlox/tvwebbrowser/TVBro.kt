@@ -41,6 +41,7 @@ class TVBro : Application(), Application.ActivityLifecycleCallbacks {
     override fun onCreate() {
         Log.i(TAG, "onCreate")
         super.onCreate()
+        com.phlox.tvwebbrowser.utils.CrashHandler.install(this)
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             //we need this since when targetSdkVersion >= 33 then
