@@ -131,7 +131,6 @@ open class MainActivity : AppCompatActivity() {
     private var linkActionsMenu: PopupMenu? = null
 
     // Compose state — replaces ActivityMainBinding vb
-    private lateinit var cursorLayout: CursorLayout
     private var addressText by mutableStateOf("")
     private var addressTextColor by mutableStateOf(Color.BLACK)
     private var webProgress by mutableStateOf(0)
@@ -147,6 +146,8 @@ open class MainActivity : AppCompatActivity() {
     private var thumbnail by mutableStateOf<Bitmap?>(null)
     private var tabsUi by mutableStateOf<List<TabUi>>(emptyList())
     private var currentTabIndex by mutableStateOf(0)
+    private var cursorLayout: CursorLayout? = null
+    private var pendingLoadState = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,8 +174,6 @@ open class MainActivity : AppCompatActivity() {
         autoUpdateModel = ActiveModelsRepository.get(AutoUpdateModel::class, this)
         uiHandler = Handler()
         prefs = getSharedPreferences(TVBro.MAIN_PREFS_NAME, Context.MODE_PRIVATE)
-        // Create CursorLayout outside Compose so WebEngine can attach immediately
-        cursorLayout = CursorLayout(this)
 
         setContent {
             XeraTheme {
@@ -193,6 +192,16 @@ open class MainActivity : AppCompatActivity() {
                     blockedPopups = blockedPopups,
                     isCursorMenuVisible = isCursorMenuVisible,
                     cursorLayout = cursorLayout,
+                    onCursorLayoutCreated = { layout ->
+                        if (cursorLayout == null) {
+                            cursorLayout = layout
+                            Log.d(TAG, "onCursorLayoutCreated, triggering pending loadState")
+                            if (pendingLoadState) {
+                                pendingLoadState = false
+                                loadState()
+                            }
+                        }
+                    },
                     onUrlChanged = { addressText = it },
                     onSearch = { search(addressText) },
                     onMenu = { closeWindow() },
@@ -267,14 +276,20 @@ open class MainActivity : AppCompatActivity() {
             refreshTabsUi()
             if (it.isEmpty()) {
                 if (!config.isWebEngineGecko()) {
-                    cursorLayout.removeAllViews()
+                    cursorLayout?.removeAllViews()
                 }
             }
         }
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        loadState()
+        // Defer loadState until CursorLayout is created in Compose (fixes white screen -> crash)
+        if (cursorLayout != null) {
+            loadState()
+        } else {
+            Log.d(TAG, "deferring loadState until CursorLayout ready")
+            pendingLoadState = true
+        }
     }
 
     private fun refreshTabsUi() {
@@ -393,20 +408,42 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun loadState() = lifecycleScope.launch(Dispatchers.Main) {
-        Log.d(TAG, "loadState")
-        WebEngineFactory.initialize(this@MainActivity, cursorLayout)
+        Log.d(TAG, "loadState cursorLayout=${cursorLayout != null} pending=$pendingLoadState")
+        val container = cursorLayout
+        if (container == null) {
+            Log.w(TAG, "loadState called but cursorLayout is null, deferring")
+            pendingLoadState = true
+            return@launch
+        }
+        try {
+            WebEngineFactory.initialize(this@MainActivity, container)
+        } catch (e: Exception) {
+            Log.e(TAG, "WebEngineFactory.initialize failed", e)
+            Toast.makeText(this@MainActivity, "Engine init failed: ${e.message}", Toast.LENGTH_LONG).show()
+            isGenericLoading = false
+            return@launch
+        }
 
         isGenericLoading = true
-        viewModel.loadState().join()
-        tabsModel.loadState().join()
+        try {
+            viewModel.loadState().join()
+            tabsModel.loadState().join()
+        } catch (e: Exception) {
+            Log.e(TAG, "loadState viewModel/tabsModel failed", e)
+            Toast.makeText(this@MainActivity, "Load failed: ${e.message}", Toast.LENGTH_LONG).show()
+            isGenericLoading = false
+            return@launch
+        }
 
         if (!isActive) {
+            isGenericLoading = false
             return@launch
         }
 
         isGenericLoading = false
 
-        if (intent.data == null) {
+        try {
+            if (intent.data == null) {
             if (tabsModel.tabsStates.isEmpty()) {
                 openInNewTab(settingsModel.homePage, 0,
                     needToHideMenuOverlay = true,
@@ -442,6 +479,11 @@ open class MainActivity : AppCompatActivity() {
                     autoUpdateModel.showUpdateDialogIfNeeded(this@MainActivity)
                 }
             }
+        }
+        } catch (e: Exception) {
+            Log.e(TAG, "loadState tab handling failed", e)
+            Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            isGenericLoading = false
         }
     }
 
@@ -499,7 +541,15 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun changeTab(newTab: WebTabState) {
-        tabsModel.changeTab(newTab, { tab: WebTabState -> createWebView(tab) }, cursorLayout, WebEngineCallback(newTab))
+        val container = cursorLayout
+        if (container == null) {
+            Log.w(TAG, "changeTab called but cursorLayout is null, deferring")
+            // still update currentTab so UI reflects, but don't attach view yet
+            tabsModel.currentTab.value = newTab
+            refreshTabsUi()
+            return
+        }
+        tabsModel.changeTab(newTab, { tab: WebTabState -> createWebView(tab) }, container, WebEngineCallback(newTab))
         refreshTabsUi()
     }
 
@@ -877,8 +927,8 @@ open class MainActivity : AppCompatActivity() {
 
         if (isCursorMenuVisible) {
             isCursorMenuVisible = false
-        } else if (cursorLayout.cursorDrawerDelegate.canHandleBackNavigation()) {
-            cursorLayout.cursorDrawerDelegate.handleBackNavigation()
+        } else if (cursorLayout?.cursorDrawerDelegate?.canHandleBackNavigation() == true) {
+            cursorLayout?.cursorDrawerDelegate?.handleBackNavigation()
         } else if (isFullscreen) {
             tabsModel.currentTab.value?.webEngine?.hideFullscreenView()
         } else if (isMenuVisible) {
@@ -1345,10 +1395,11 @@ open class MainActivity : AppCompatActivity() {
             }
             val url = s
             val isHTTPUrl = url != null && (url.startsWith("http://") || url.startsWith("https://"))
+            val container = cursorLayout ?: return
             val anchor = View(this@MainActivity)
             val lp = FrameLayout.LayoutParams(1, 1)
             lp.setMargins(x, y, 0, 0)
-            cursorLayout.addView(anchor, lp)
+            container.addView(anchor, lp)
             linkActionsMenu = PopupMenu(this@MainActivity, anchor, Gravity.BOTTOM).also {
                 it.inflate(R.menu.menu_link)
                 it.menu.findItem(R.id.miOpenInNewTab).isVisible = isHTTPUrl
@@ -1369,7 +1420,7 @@ open class MainActivity : AppCompatActivity() {
                 }
 
                 it.setOnDismissListener {
-                    cursorLayout.removeView(anchor)
+                    cursorLayout?.removeView(anchor)
                     linkActionsMenu = null
                 }
                 it.show()

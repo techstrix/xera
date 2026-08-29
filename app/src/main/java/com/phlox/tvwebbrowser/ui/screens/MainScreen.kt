@@ -48,6 +48,7 @@ fun MainScreen(
     blockedPopups: Int = 0,
     isCursorMenuVisible: Boolean = false,
     cursorLayout: CursorLayout? = null,
+    onCursorLayoutCreated: (CursorLayout) -> Unit = {},
     onUrlChanged: (String) -> Unit = {},
     onSearch: () -> Unit = {},
     onMenu: () -> Unit = {},
@@ -76,17 +77,17 @@ fun MainScreen(
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // WebEngine container — CursorLayout hosting WebView/GeckoView
-        if (cursorLayout != null) {
-            AndroidView(
-                factory = { cursorLayout },
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            // Fallback placeholder when cursorLayout not yet available
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Loading…", color = MaterialTheme.colorScheme.onBackground)
-            }
-        }
+        // Create CursorLayout inside Compose so its lifecycle is tied to composition
+        AndroidView(
+            factory = { ctx ->
+                // Reuse existing if Activity already created one, otherwise create new
+                val layout = cursorLayout ?: CursorLayout(ctx)
+                // Notify Activity that layout is ready (for WebEngine init)
+                onCursorLayoutCreated(layout)
+                layout
+            },
+            modifier = Modifier.fillMaxSize()
+        )
 
         // Horizontal progress bar at top (3dp)
         if (isProgressVisible) {
