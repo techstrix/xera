@@ -27,30 +27,54 @@ fun MainScreen(
     isShieldsOn: Boolean = true,
     blockedCount: Int = 3,
     onUrlChanged: (String) -> Unit = {},
+    onSearch: () -> Unit = {},
+    onMenu: () -> Unit = {},
+    onVoice: () -> Unit = {},
+    onHistory: () -> Unit = {},
+    onFavorites: () -> Unit = {},
+    onDownloads: () -> Unit = {},
+    onIncognito: () -> Unit = {},
+    onSettings: () -> Unit = {},
+    onTabSelected: (TabUi) -> Unit = {},
+    onTabClose: (TabUi) -> Unit = {},
+    onAddTab: () -> Unit = {},
+    onBack: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    onGrab: () -> Unit = {},
+    onZoomIn: () -> Unit = {},
+    onZoomOut: () -> Unit = {},
+    onContextMenu: () -> Unit = {},
+    onDpad: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             Column {
-                ActionBarCompose(url = url, onUrlChanged = onUrlChanged, onSearch = {}, onMenu = {}, onVoice = {}, onHistory = {}, onFavorites = {}, onDownloads = {}, onIncognito = {}, onSettings = {})
-                TabsBarCompose(tabs = tabs, onTabSelected = {}, onTabClose = {}, onAddTab = {})
+                ActionBarCompose(url = url, onUrlChanged = onUrlChanged, onSearch = onSearch, onMenu = onMenu, onVoice = onVoice, onHistory = onHistory, onFavorites = onFavorites, onDownloads = onDownloads, onIncognito = onIncognito, onSettings = onSettings)
+                TabsBarCompose(tabs = tabs, onTabSelected = onTabSelected, onTabClose = onTabClose, onAddTab = onAddTab)
             }
         },
         bottomBar = {
             Row(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                Button(onClick = {}) { Text("Back") }
-                Button(onClick = {}) { Text("Refresh") }
+                Button(onClick = onBack) { Text("Back") }
+                Button(onClick = onRefresh) { Text("Refresh") }
                 Badge { Text(if (isShieldsOn) "$blockedCount" else "0") }
             }
         },
         modifier = modifier.fillMaxSize()
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            // WebEngine container — AndroidView for CursorLayout (TV cursor + WebView)
+            // WebEngine container — hosts existing browser engine view inside CursorLayout (was empty cursor-only)
             AndroidView(
                 factory = { ctx ->
                     CursorLayout(ctx).apply {
                         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                        // Host existing browser engine view (flWebViewContainer equivalent) — reuse browser-container symbol
+                        val browserView = android.view.View(ctx).apply {
+                            id = com.phlox.tvwebbrowser.R.id.flWebViewContainer
+                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                        }
+                        addView(browserView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
                     }
                 },
                 modifier = Modifier.fillMaxSize()
@@ -62,7 +86,7 @@ fun MainScreen(
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) { Text("SHIELDS ON — Xera", modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) }
             }
-            CursorMenuCompose(modifier = Modifier.align(Alignment.Center))
+            CursorMenuCompose(onGrab = onGrab, onZoomIn = onZoomIn, onZoomOut = onZoomOut, onMenu = onContextMenu, onDpad = onDpad, modifier = Modifier.align(Alignment.Center))
         }
     }
 }

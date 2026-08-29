@@ -26,7 +26,13 @@ fun TabsBarCompose(
     Row(modifier = modifier.fillMaxWidth()) {
         LazyRow(modifier = Modifier.weight(1f)) {
             items(tabs, key = { it.id }) { tab ->
-                WebTabChip(title = tab.title, selected = tab.selected, modifier = Modifier.padding(end = 4.dp))
+                WebTabChip(
+                    title = tab.title,
+                    selected = tab.selected,
+                    onSelected = { onTabSelected(tab) },
+                    onClose = { onTabClose(tab) },
+                    modifier = Modifier.padding(end = 4.dp)
+                )
             }
         }
         Button(onClick = onAddTab, modifier = Modifier.padding(start = 5.dp)) { Text("+") }

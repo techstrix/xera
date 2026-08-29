@@ -30,16 +30,20 @@ fun SettingsMainScreen(
     themeOptions: List<String> = listOf("System","White","Dark"),
     selectedTheme: Int = 0,
     onThemeSelected: (Int) -> Unit = {},
+    keepScreenOn: Boolean = false,
+    onKeepScreenOnChanged: (Boolean) -> Unit = {},
+    allowAutoplay: Boolean = false,
+    onAllowAutoplayChanged: (Boolean) -> Unit = {},
+    debugEnabled: Boolean = false,
+    onDebugEnabledChanged: (Boolean) -> Unit = {},
+    cursorSpeed: Float = 0.5f,
+    onCursorSpeedChanged: (Float) -> Unit = {},
     onClearCache: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var engineExpanded by remember { mutableStateOf(false) }
     var homeExpanded by remember { mutableStateOf(false) }
     var themeExpanded by remember { mutableStateOf(false) }
-    var keepScreenOn by remember { mutableStateOf(false) }
-    var allowAutoplay by remember { mutableStateOf(false) }
-    var debugEnabled by remember { mutableStateOf(false) }
-    var cursorSpeed by remember { mutableStateOf(0.5f) }
 
     Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Choose default search engine", fontSize = 16.sp)
@@ -72,16 +76,16 @@ fun SettingsMainScreen(
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text("Keep screen on", modifier = Modifier.weight(1f)); Switch(checked = keepScreenOn, onCheckedChange = { keepScreenOn = it })
+            Text("Keep screen on", modifier = Modifier.weight(1f)); Switch(checked = keepScreenOn, onCheckedChange = onKeepScreenOnChanged)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text("Allow autoplay", modifier = Modifier.weight(1f)); Switch(checked = allowAutoplay, onCheckedChange = { allowAutoplay = it })
+            Text("Allow autoplay", modifier = Modifier.weight(1f)); Switch(checked = allowAutoplay, onCheckedChange = onAllowAutoplayChanged)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text("Web engine debugging", modifier = Modifier.weight(1f)); Switch(checked = debugEnabled, onCheckedChange = { debugEnabled = it })
+            Text("Web engine debugging", modifier = Modifier.weight(1f)); Switch(checked = debugEnabled, onCheckedChange = onDebugEnabledChanged)
         }
         Text("Virtual cursor max speed", fontSize = 16.sp)
-        Slider(value = cursorSpeed, onValueChange = { cursorSpeed = it }, modifier = Modifier.fillMaxWidth())
+        Slider(value = cursorSpeed, onValueChange = onCursorSpeedChanged, modifier = Modifier.fillMaxWidth())
         Button(onClick = onClearCache, modifier = Modifier.padding(top = 10.dp)) { Text("Clear web cache") }
     }
 }
