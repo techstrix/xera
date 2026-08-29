@@ -49,7 +49,6 @@ fun MainScreen(
     isCursorMenuVisible: Boolean = false,
     cursorLayout: CursorLayout? = null,
     onCursorLayoutCreated: (CursorLayout) -> Unit = {},
-    hasExternalContainer: Boolean = false,
     onUrlChanged: (String) -> Unit = {},
     onSearch: () -> Unit = {},
     onMenu: () -> Unit = {},
@@ -76,21 +75,19 @@ fun MainScreen(
     onDpad: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // When hasExternalContainer is true, Activity hosts CursorLayout via FrameLayout outside Compose (more stable, fixes white-screen crash)
-    // In that mode, Compose is transparent overlay only
-    val boxBg = if (hasExternalContainer) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.background
-    Box(modifier = modifier.fillMaxSize().background(boxBg)) {
-        // WebEngine container — only when not externally hosted
-        if (!hasExternalContainer) {
-            AndroidView(
-                factory = { ctx ->
-                    val layout = cursorLayout ?: CursorLayout(ctx)
-                    onCursorLayoutCreated(layout)
-                    layout
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // WebEngine container — CursorLayout hosting WebView/GeckoView
+        // Create CursorLayout inside Compose so its lifecycle is tied to composition
+        AndroidView(
+            factory = { ctx ->
+                // Reuse existing if Activity already created one, otherwise create new
+                val layout = cursorLayout ?: CursorLayout(ctx)
+                // Notify Activity that layout is ready (for WebEngine init)
+                onCursorLayoutCreated(layout)
+                layout
+            },
+            modifier = Modifier.fillMaxSize()
+        )
 
         // Horizontal progress bar at top (3dp)
         if (isProgressVisible) {
