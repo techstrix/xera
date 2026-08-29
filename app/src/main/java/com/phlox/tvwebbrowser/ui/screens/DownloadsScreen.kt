@@ -1,7 +1,9 @@
 package com.phlox.tvwebbrowser.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +26,12 @@ import com.phlox.tvwebbrowser.model.Download
 import com.phlox.tvwebbrowser.ui.components.DownloadItem
 import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DownloadsScreen(
     items: List<Download>,
     onItemClick: (Download) -> Unit,
+    onItemLongClick: (Download) -> Unit = {},
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,7 +56,10 @@ fun DownloadsScreen(
                             url = dl.url,
                             progress = prog,
                             isCircularVisible = dl.size == 0L,
-                            modifier = Modifier.padding(vertical = 4.dp).clickable { onItemClick(dl) }
+                            modifier = Modifier.padding(vertical = 4.dp).combinedClickable(
+                                onClick = { onItemClick(dl) },
+                                onLongClick = { onItemLongClick(dl) }
+                            )
                         )
                     }
                 }

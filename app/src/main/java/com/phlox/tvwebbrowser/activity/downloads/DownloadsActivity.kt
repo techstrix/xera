@@ -72,6 +72,7 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
                 DownloadsScreen(
                     items = composeItems,
                     onItemClick = { dl -> handleDownloadClick(dl) },
+                    onItemLongClick = { dl -> handleDownloadLongClick(dl) },
                     onLoadMore = { downloadsHistoryModel.loadNextItems() }
                 )
             }
@@ -118,6 +119,48 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
             startActivity(openIntent)
         } catch (e: ActivityNotFoundException) {
             Utils.showToast(this, getString(R.string.no_app_for_file_type))
+        }
+    }
+
+    private fun handleDownloadLongClick(download: Download) {
+        if (download.isDateHeader) return
+        // Reuse existing option handlers: unfinished -> cancel, finished -> delete/install/open-folder
+        // For Compose we show AlertDialog with same options (PopupMenu needs anchor view)
+        val isFinished = download.size == Download.BROKEN_MARK || download.size == Download.CANCELLED_MARK || download.size == download.bytesReceived
+        if (!isFinished) {
+            AlertDialog.Builder(this)
+                .setTitle(download.filename)
+                .setItems(arrayOf(getString(R.string.cancel))) { _, _ ->
+                    activeDownloadsModel.cancelDownload(download)
+                }
+                .show()
+        } else {
+            val options = mutableListOf<String>()
+            val ids = mutableListOf<Int>()
+            if (download.filename.endsWith(".apk", true) && download.size == download.bytesReceived) {
+                options.add(getString(R.string.install)); ids.add(0)
+            }
+            options.add(getString(R.string.open_folder)); ids.add(1)
+            options.add(getString(R.string.delete)); ids.add(2)
+            AlertDialog.Builder(this)
+                .setTitle(download.filename)
+                .setItems(options.toTypedArray()) { _, which ->
+                    when (ids[which]) {
+                        0 -> installAPK(download)
+                        1 -> {
+                            val uri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
+                            val intent = Intent(Intent.ACTION_VIEW); intent.setDataAndType(uri, "resource/folder")
+                            if (intent.resolveActivityInfo(packageManager, 0) != null) startActivity(intent) else Utils.showToast(this, R.string.no_file_explorer_msg)
+                        }
+                        2 -> lifecycleScope.launch(Dispatchers.Main) {
+                            activeDownloadsModel.deleteItem(download)
+                            // keep Compose list in sync
+                            composeItems.remove(download)
+                            adapter.remove(download)
+                        }
+                    }
+                }
+                .show()
         }
     }
 

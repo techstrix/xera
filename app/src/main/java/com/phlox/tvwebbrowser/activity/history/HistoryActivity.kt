@@ -78,7 +78,12 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
                     onDeleteSelected = { showDeleteDialog(false) },
                     isMultiSelect = composeIsMultiSelect,
                     selectedIds = composeSelectedIds,
-                    onLoadMore = { historyModel.loadItems(false, composeItems.size.toLong()) }
+                    onLoadMore = {
+                        // Preserve legacy pagination: only when not searching, use adapter realCount
+                        if ("" == historyModel.searchQuery) {
+                            historyModel.loadItems(false, adapter!!.realCount)
+                        }
+                    }
                 )
             }
         }
@@ -240,7 +245,6 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
             // clear selected flags
             composeItems.forEach { it.selected = false }
             adapter!!.isMultiselectMode = false
-            updateMenu()
             return
         }
         if (adapter!!.isMultiselectMode) {

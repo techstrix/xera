@@ -33,7 +33,18 @@ class SettingsDialog(context: Context, val model: SettingsModel) :
                 setViewTreeSavedStateRegistryOwner(context as? androidx.savedstate.SavedStateRegistryOwner)
                 setContent {
                     XeraTheme {
-                        SettingsDialogCompose(onDismiss = { dismiss() })
+                        SettingsDialogCompose(
+                            settingsModel = model,
+                            onDismiss = { dismiss() },
+                            onVersionLink = { url ->
+                                dismiss()
+                                val activity = context as? android.app.Activity
+                                val incognito = model.config.incognitoMode
+                                val target = if (incognito) com.phlox.tvwebbrowser.activity.IncognitoModeMainActivity::class.java else com.phlox.tvwebbrowser.activity.main.MainActivity::class.java
+                                val intent = android.content.Intent(activity, target).apply { data = android.net.Uri.parse(url) }
+                                activity?.startActivity(intent)
+                            }
+                        )
                     }
                 }
             }
