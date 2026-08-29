@@ -16,7 +16,7 @@ import com.phlox.tvwebbrowser.ui.theme.XeraTheme
 
 class SettingsDialog(context: Context, val model: SettingsModel) :
     Dialog(context, R.style.SettingsDialog),
-    DialogInterface.OnDismissListener, VersionSettingsView.Callback {
+    DialogInterface.OnDismissListener {
 
     init {
         setTitle(R.string.settings)
@@ -54,9 +54,5 @@ class SettingsDialog(context: Context, val model: SettingsModel) :
 
     override fun onDismiss(dialog: DialogInterface?) {
         // Compose SettingsMainScreen updates model directly; no legacy save needed
-    }
-
-    override fun onNeedToCloseSettings() {
-        dismiss()
     }
 }
