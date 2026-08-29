@@ -9,6 +9,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -74,6 +76,10 @@ fun MainScreen(
     onZoomOut: () -> Unit = {},
     onContextMenu: () -> Unit = {},
     onDpad: () -> Unit = {},
+    loadError: String? = null,
+    lastCrashLog: String? = null,
+    onRetryLoad: () -> Unit = {},
+    onDismissCrashLog: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // When hasExternalContainer is true, Activity hosts CursorLayout via FrameLayout outside Compose (more stable, fixes white-screen crash)
@@ -254,6 +260,40 @@ fun MainScreen(
             Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 6.dp, shadowElevation = 8.dp) {
                 CursorMenuCompose(onGrab = onGrab, onZoomIn = onZoomIn, onZoomOut = onZoomOut, onMenu = onContextMenu, onDpad = onDpad)
             }
+        }
+
+        // Load error overlay (prevents white-screen crash, shows retry)
+        if (loadError != null) {
+            Surface(
+                modifier = Modifier.fillMaxSize().padding(16.dp).align(Alignment.Center),
+                color = MaterialTheme.colorScheme.errorContainer,
+                shape = MaterialTheme.shapes.medium,
+                tonalElevation = 6.dp
+            ) {
+                Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+                    Text("Failed to load", color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 18.sp)
+                    Text(loadError ?: "", color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                    Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onRetryLoad) { Text("Retry") }
+                        OutlinedButton(onClick = onDismissCrashLog) { Text("Dismiss") }
+                    }
+                }
+            }
+        }
+
+        // Previous crash log dialog
+        if (lastCrashLog != null && loadError == null) {
+            AlertDialog(
+                onDismissRequest = onDismissCrashLog,
+                title = { Text("Previous crash detected") },
+                text = {
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        Text(lastCrashLog ?: "", fontSize = 10.sp)
+                    }
+                },
+                confirmButton = { TextButton(onClick = onDismissCrashLog) { Text("Dismiss") } },
+                dismissButton = { TextButton(onClick = onRetryLoad) { Text("Retry") } }
+            )
         }
     }
 }

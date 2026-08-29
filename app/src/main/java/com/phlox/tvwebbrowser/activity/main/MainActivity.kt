@@ -53,6 +53,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.phlox.tvwebbrowser.utils.CrashHandler
 import com.phlox.tvwebbrowser.AppContext
 import com.phlox.tvwebbrowser.Config
 import com.phlox.tvwebbrowser.R
@@ -150,9 +151,12 @@ open class MainActivity : AppCompatActivity() {
     private var currentTabIndex by mutableStateOf(0)
     private var cursorLayout: CursorLayout? = null
     private var pendingLoadState = false
+    private var loadError by mutableStateOf<String?>(null)
+    private var lastCrashLog by mutableStateOf<String?>(null)
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
 
         val incognitoMode = config.incognitoMode
         Log.d(TAG, "onCreate incognitoMode: $incognitoMode")
@@ -176,6 +180,11 @@ open class MainActivity : AppCompatActivity() {
         autoUpdateModel = ActiveModelsRepository.get(AutoUpdateModel::class, this)
         uiHandler = Handler()
         prefs = getSharedPreferences(TVBro.MAIN_PREFS_NAME, Context.MODE_PRIVATE)
+        // Check for previous crash log to show to user
+        try {
+            lastCrashLog = CrashHandler.getLastCrashLog(this)
+            if (lastCrashLog != null) Log.w(TAG, "Previous crash detected, log available")
+        } catch (e: Exception) { Log.e(TAG, "Failed to read crash log", e) }
 
         // Hybrid root: CursorLayout (WebView container) as traditional view below Compose overlay — fixes white-screen crash (was AndroidView factory race)
         cursorLayout = CursorLayout(this)
@@ -202,6 +211,19 @@ open class MainActivity : AppCompatActivity() {
                         blockedPopups = blockedPopups,
                         isCursorMenuVisible = isCursorMenuVisible,
                         hasExternalContainer = true,
+                        loadError = loadError,
+                        lastCrashLog = lastCrashLog,
+                        onRetryLoad = {
+                            loadError = null
+                            lastCrashLog = null
+                            // clear old crash file
+                            try { CrashHandler.getLastCrashLog(this@MainActivity)?.let { java.io.File(filesDir, "crashes").listFiles()?.forEach { it.delete() } } } catch (ignore: Exception) {}
+                            loadState()
+                        },
+                        onDismissCrashLog = {
+                            lastCrashLog = null
+                            try { java.io.File(filesDir, "crashes").listFiles()?.forEach { it.delete() } } catch (ignore: Exception) {}
+                        },
                         onUrlChanged = { addressText = it },
                         onSearch = { search(addressText) },
                         onMenu = { closeWindow() },
@@ -288,6 +310,21 @@ open class MainActivity : AppCompatActivity() {
 
         // Hybrid: cursorLayout already attached to root, safe to init WebEngine now
         loadState()
+        } catch (e: Exception) {
+            Log.e(TAG, "onCreate failed", e)
+            loadError = "onCreate failed: ${e.message}\n${Log.getStackTraceString(e).take(3000)}"
+            isGenericLoading = false
+            try {
+                if (cursorLayout == null) cursorLayout = CursorLayout(this@MainActivity)
+                val tv = android.widget.TextView(this@MainActivity).apply {
+                    text = loadError
+                    setPadding(32, 32, 32, 32)
+                    setTextColor(android.graphics.Color.RED)
+                    textSize = 14f
+                }
+                setContentView(tv)
+            } catch (ignore: Exception) {}
+        }
     }
 
     private fun refreshTabsUi() {
@@ -407,6 +444,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun loadState() = lifecycleScope.launch(Dispatchers.Main) {
         Log.d(TAG, "loadState cursorLayout=${cursorLayout != null} pending=$pendingLoadState")
+        loadError = null
         val container = cursorLayout
         if (container == null) {
             Log.w(TAG, "loadState called but cursorLayout is null, deferring")
@@ -417,6 +455,7 @@ open class MainActivity : AppCompatActivity() {
             WebEngineFactory.initialize(this@MainActivity, container)
         } catch (e: Exception) {
             Log.e(TAG, "WebEngineFactory.initialize failed", e)
+            loadError = "Engine init failed: ${e.message}\n${Log.getStackTraceString(e).take(2000)}"
             Toast.makeText(this@MainActivity, "Engine init failed: ${e.message}", Toast.LENGTH_LONG).show()
             isGenericLoading = false
             return@launch
@@ -428,6 +467,7 @@ open class MainActivity : AppCompatActivity() {
             tabsModel.loadState().join()
         } catch (e: Exception) {
             Log.e(TAG, "loadState viewModel/tabsModel failed", e)
+            loadError = "Load failed: ${e.message}\n${Log.getStackTraceString(e).take(2000)}"
             Toast.makeText(this@MainActivity, "Load failed: ${e.message}", Toast.LENGTH_LONG).show()
             isGenericLoading = false
             return@launch
@@ -480,6 +520,7 @@ open class MainActivity : AppCompatActivity() {
         }
         } catch (e: Exception) {
             Log.e(TAG, "loadState tab handling failed", e)
+            loadError = "Error: ${e.message}\n${Log.getStackTraceString(e).take(2000)}"
             Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             isGenericLoading = false
         }
