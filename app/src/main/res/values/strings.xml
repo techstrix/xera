@@ -198,7 +198,4 @@
     <string name="media_rewind">Rewind Media</string>
     <string name="media_fast_forward">Fast Forward Media</string>
     <string name="long_press">Long press</string>
-    <string name="grab_mode">Grab mode</string>
-    <string name="show_context_menu">Show context menu</string>
-    <string name="dpad_mode">D-pad mode</string>
 </resources>
