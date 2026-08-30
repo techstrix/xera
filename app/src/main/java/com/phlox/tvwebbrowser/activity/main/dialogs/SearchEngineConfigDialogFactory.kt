@@ -42,6 +42,9 @@ object SearchEngineConfigDialogFactory {
         if (selected != -1) {
             spEngine.setText(adapter.getItem(selected).toString(), false)
             etUrl.setText(Config.SearchEnginesURLs[selected])
+            // Show custom URL field only for Custom engine
+            llUrl.visibility = if (selected == Config.SearchEnginesTitles.size - 1) View.VISIBLE else View.GONE
+            if (selected == Config.SearchEnginesTitles.size - 1) etUrl.requestFocus()
         } else {
             spEngine.setText(adapter.getItem(Config.SearchEnginesTitles.size - 1).toString(), false)
             llUrl.visibility = View.VISIBLE
@@ -49,19 +52,32 @@ object SearchEngineConfigDialogFactory {
             etUrl.requestFocus()
         }
         spEngine.setOnItemClickListener { _, _, position, _ ->
-            if (position == Config.SearchEnginesTitles.size - 1 && llUrl.visibility == View.GONE) {
-                llUrl.visibility = View.VISIBLE
-                llUrl.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
-                etUrl.requestFocus()
+            if (position == Config.SearchEnginesTitles.size - 1) {
+                if (llUrl.visibility == View.GONE) {
+                    llUrl.visibility = View.VISIBLE
+                    llUrl.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
+                    etUrl.requestFocus()
+                }
+                // For custom, keep current etUrl (user editable) — do not overwrite with placeholder
+                if (etUrl.text.isNullOrEmpty()) etUrl.setText(settings.config.searchEngineURL.value)
+            } else {
+                llUrl.visibility = View.GONE
+                etUrl.setText(Config.SearchEnginesURLs[position])
             }
-            etUrl.setText(Config.SearchEnginesURLs[position])
         }
 
         builder.setView(view)
                 .setCancelable(cancellable)
                 .setTitle(R.string.engine)
                 .setPositiveButton(R.string.save) { dialog, which ->
-                    val url = etUrl.text.toString()
+                    val isCustom = llUrl.visibility == View.VISIBLE
+                    val url = if (isCustom) {
+                        etUrl.text.toString()
+                    } else {
+                        val txt = spEngine.text.toString()
+                        val idx = Config.SearchEnginesTitles.indexOf(txt).takeIf { it != -1 } ?: selected
+                        if (idx in Config.SearchEnginesURLs.indices) Config.SearchEnginesURLs[idx] else etUrl.text.toString()
+                    }
                     settings.setSearchEngineURL(url)
                     callback.onDone(url)
                 }

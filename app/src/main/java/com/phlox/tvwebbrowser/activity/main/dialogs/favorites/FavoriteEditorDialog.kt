@@ -5,8 +5,8 @@ import android.content.Context
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.model.FavoriteItem
@@ -19,8 +19,8 @@ class FavoriteEditorDialog(context: Context, private val callback: Callback, pri
     private val tvUrl: TextView
     private val etTitle: EditText
     private val etUrl: EditText
-    private val ibTitle: ImageButton
-    private val ibUrl: ImageButton
+    private val ibTitle: MaterialButton
+    private val ibUrl: MaterialButton
     private val btnDone: Button
     private val btnCancel: Button
 
@@ -36,8 +36,8 @@ class FavoriteEditorDialog(context: Context, private val callback: Callback, pri
         tvUrl = findViewById<View>(R.id.tvUrl) as TextView
         etTitle = findViewById<View>(R.id.etTitle) as EditText
         etUrl = findViewById<View>(R.id.etUrl) as EditText
-        ibTitle = findViewById<View>(R.id.ibTitle) as ImageButton
-        ibUrl = findViewById<View>(R.id.ibUrl) as ImageButton
+        ibTitle = findViewById<View>(R.id.ibTitle) as MaterialButton
+        ibUrl = findViewById<View>(R.id.ibUrl) as MaterialButton
         btnDone = findViewById<View>(R.id.btnDone) as Button
         btnCancel = findViewById<View>(R.id.btnCancel) as Button
 

@@ -459,6 +459,12 @@ class MainSettingsView @JvmOverloads constructor(
         (vb.spHomePage as? android.widget.AutoCompleteTextView)?.let { actv ->
             actv.setAdapter(homePageSpinnerAdapter)
             actv.setText(homePageSpinnerAdapter.getItem(settingsModel.homePageMode.ordinal).toString(), false)
+            // Apply initial visibility for stored mode (CUSTOM/HOME_PAGE) without requiring selection
+            run {
+                val mode = settingsModel.homePageMode
+                vb.llCustomHomePage.visibility = if (mode == Config.HomePageMode.CUSTOM) View.VISIBLE else View.GONE
+                vb.llHomePageLinksMode.visibility = if (mode == Config.HomePageMode.HOME_PAGE) View.VISIBLE else View.GONE
+            }
             actv.setOnItemClickListener { _, _, position, _ ->
                 val homePageMode = Config.HomePageMode.entries[position]
                 vb.llCustomHomePage.visibility = if (homePageMode == Config.HomePageMode.CUSTOM) View.VISIBLE else View.GONE

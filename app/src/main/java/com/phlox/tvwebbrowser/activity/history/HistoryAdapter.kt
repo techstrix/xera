@@ -70,13 +70,20 @@ class HistoryAdapter(private val activity: HistoryActivity? = null) : RecyclerVi
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val view = holder.itemView as HistoryItemView
-        view.setHistoryItem(items[position], isMultiselectMode)
+        val item = items[position]
+        view.setHistoryItem(item, isMultiselectMode)
         // TV focus + click handling (keep positions, handle header as non-clickable)
         view.setOnClickListener {
             activity?.onHistoryItemClick(view)
         }
-        view.setOnLongClickListener {
-            activity?.onHistoryItemLongClick(view) ?: false
+        if (item.isDateHeader) {
+            view.setOnLongClickListener(null)
+            view.isLongClickable = false
+        } else {
+            view.setOnLongClickListener {
+                activity?.onHistoryItemLongClick(view) ?: false
+            }
+            view.isLongClickable = true
         }
     }
 

@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation(project(":app:common"))
     implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
     implementation(libs.geckoview)
     testImplementation(libs.junit)
 }

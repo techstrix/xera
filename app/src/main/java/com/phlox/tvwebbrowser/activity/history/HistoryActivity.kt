@@ -83,6 +83,7 @@ class HistoryActivity : AppCompatActivity(){
     }
 
     fun onHistoryItemLongClick(view: HistoryItemView): Boolean {
+        if (view.historyItem?.isDateHeader == true) return false
         if (adapter!!.isMultiselectMode) return false
         adapter!!.isMultiselectMode = true
         view.setSelection(true)
