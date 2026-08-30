@@ -6,31 +6,29 @@
     tools:orientation="horizontal">
   <com.google.android.material.button.MaterialButton
         style="@style/Widget.Material3.Button.IconButton"
+      android:id="@+id/ibMenu"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:id="@+id/ibMenu"
-      android:src="@drawable/ic_close_grey_900_36dp"
-        app:icon="@drawable/ic_close_grey_900_36dp"
-      android:nextFocusRight="@+id/ibVoiceSearch"
-      android:nextFocusDown="@+id/vTabs"
-      android:background="@drawable/button_bg_selector"
       android:layout_margin="5dp"
       android:focusable="true"
       android:focusableInTouchMode="true"
+      android:nextFocusRight="@+id/ibVoiceSearch"
+      android:nextFocusDown="@+id/vTabs"
+      app:icon="@drawable/ic_close_grey_900_36dp"
       android:contentDescription="@string/close_application" />
 
   <com.google.android.material.button.MaterialButton
         style="@style/Widget.Material3.Button.IconButton"
+      android:id="@+id/ibVoiceSearch"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:id="@+id/ibVoiceSearch"
-      android:src="@drawable/ic_mic_none_grey_900_36dp"
-        app:icon="@drawable/ic_mic_none_grey_900_36dp"
-      android:nextFocusRight="@+id/ibHistory"
-      android:nextFocusDown="@+id/vTabs"
-      android:background="@drawable/button_bg_selector"
       android:layout_marginEnd="5dp"
       android:layout_marginTop="5dp"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+      android:nextFocusRight="@+id/ibHistory"
+      android:nextFocusDown="@+id/vTabs"
+      app:icon="@drawable/ic_mic_none_grey_900_36dp"
       android:contentDescription="@string/voice_search" />
 
   <com.google.android.material.button.MaterialButton
@@ -40,26 +38,25 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="5dp"
       android:layout_marginEnd="5dp"
-      android:background="@drawable/button_bg_selector"
-      android:contentDescription="@string/history"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
       android:nextFocusRight="@+id/ibFavorites"
       android:nextFocusDown="@+id/vTabs"
-      android:src="@drawable/ic_history_grey_900_36dp"
-        app:icon="@drawable/ic_history_grey_900_36dp"
-      />
+      app:icon="@drawable/ic_history_grey_900_36dp"
+      android:contentDescription="@string/history" />
 
   <com.google.android.material.button.MaterialButton
         style="@style/Widget.Material3.Button.IconButton"
+      android:id="@+id/ibFavorites"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:id="@+id/ibFavorites"
-      android:src="@drawable/ic_star_border_grey_900_36dp"
-        app:icon="@drawable/ic_star_border_grey_900_36dp"
-      android:nextFocusRight="@+id/ibDownloads"
-      android:nextFocusDown="@+id/vTabs"
-      android:background="@drawable/button_bg_selector"
       android:layout_marginEnd="5dp"
       android:layout_marginTop="5dp"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+      android:nextFocusRight="@+id/ibDownloads"
+      android:nextFocusDown="@+id/vTabs"
+      app:icon="@drawable/ic_star_border_grey_900_36dp"
       android:contentDescription="@string/favorites" />
 
   <com.google.android.material.button.MaterialButton
@@ -69,13 +66,12 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="5dp"
       android:layout_marginEnd="5dp"
-      android:background="@drawable/button_bg_selector"
-      android:contentDescription="@string/downloads"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
       android:nextFocusRight="@+id/ibIncognito"
       android:nextFocusDown="@+id/vTabs"
-      android:src="@drawable/ic_file_download_grey_900"
-        app:icon="@drawable/ic_file_download_grey_900"
-      />
+      app:icon="@drawable/ic_file_download_grey_900"
+      android:contentDescription="@string/downloads" />
 
   <com.phlox.tvwebbrowser.widgets.CheckableImageButton
       android:id="@+id/ibIncognito"
@@ -84,25 +80,25 @@
       android:layout_marginTop="5dp"
       android:layout_marginEnd="5dp"
       android:background="@drawable/button_bg_selector"
-      android:contentDescription="@string/incognito_mode"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
       android:nextFocusRight="@+id/ibSettings"
       android:nextFocusDown="@+id/vTabs"
       android:src="@drawable/ic_incognito"
-        app:icon="@drawable/ic_incognito"
-      />
+      android:contentDescription="@string/incognito_mode" />
 
   <com.google.android.material.button.MaterialButton
         style="@style/Widget.Material3.Button.IconButton"
-      android:src="@drawable/ic_settings_grey_900_24dp"
-        app:icon="@drawable/ic_settings_grey_900_24dp"
+      android:id="@+id/ibSettings"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:nextFocusRight="@+id/etUrl"
-      android:nextFocusDown="@+id/vTabs"
-      android:id="@+id/ibSettings"
-      android:background="@drawable/button_bg_selector"
       android:layout_marginEnd="5dp"
       android:layout_marginTop="5dp"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+      android:nextFocusRight="@+id/etUrl"
+      android:nextFocusDown="@+id/vTabs"
+      app:icon="@drawable/ic_settings_grey_900_24dp"
       android:contentDescription="@string/settings" />
 
   <FrameLayout
@@ -112,16 +108,22 @@
       android:background="@color/top_bar_background"
       android:id="@+id/flUrl">
     <EditText
+        android:id="@+id/etUrl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/etUrl"
-        android:iconifiedByDefault="false"
-        android:textCursorDrawable="@null"
-        android:textColor="@color/default_url_color"
         android:layout_marginTop="15dp"
         android:imeOptions="actionSearch"
         android:hint="@string/url_prompt"
         android:inputType="textFilter|textNoSuggestions|textUri"
-        android:importantForAutofill="no" />
+        android:importantForAutofill="no"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusLeft="@+id/ibSettings"
+        android:nextFocusRight="@+id/vTabs"
+        android:nextFocusUp="@+id/ibSettings"
+        android:nextFocusDown="@+id/vTabs"
+        android:textCursorDrawable="@null"
+        android:textColor="?attr/colorOnSurface"
+        android:background="?attr/editTextBackground" />
   </FrameLayout>
 </merge>

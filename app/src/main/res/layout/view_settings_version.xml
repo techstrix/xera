@@ -144,12 +144,12 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnUpdate"
+        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/tvNewVersion"
         android:layout_marginStart="30dp"
         android:layout_alignBaseline="@+id/tvNewVersion"
         android:text="@string/update"
-        android:visibility="invisible"
-        android:background="@drawable/button_bg_selector"/>
+        android:visibility="invisible" />
 </RelativeLayout>
