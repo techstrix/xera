@@ -6,8 +6,9 @@ import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ProgressBar
 import android.widget.TextView
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.model.Download
 import java.text.SimpleDateFormat
@@ -23,8 +24,8 @@ class DownloadListItemView(private val downloadsActivity: DownloadsActivity, pri
     private var tvTitle: TextView? = null
     private var tvURL: TextView? = null
     private var tvTime: TextView? = null
-    private var progressBar: ProgressBar? = null
-    private var progressBar2: ProgressBar? = null
+    private var progressBar: LinearProgressIndicator? = null
+    private var progressBar2: CircularProgressIndicator? = null
     private var tvSize: TextView? = null
     var download: Download? = null
     set(value) {
@@ -99,7 +100,7 @@ class DownloadListItemView(private val downloadsActivity: DownloadsActivity, pri
                 if (download.bytesReceived > download.size) {
                     download.size = 0L//wrong value from server - ignore it for future updates
                 } else {
-                    progressBar!!.progress = (download.bytesReceived * 100 / download.size).toInt()
+                    progressBar!!.setProgressCompat((download.bytesReceived * 100 / download.size).toInt(), true)
                 }
             }
         }
