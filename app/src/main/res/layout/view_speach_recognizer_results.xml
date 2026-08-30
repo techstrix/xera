@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:parentTag="android.widget.FrameLayout"
-    android:background="@color/top_bar_background"
-    android:elevation="5dp"
     android:clipToPadding="false"
     >
 
-  <LinearLayout
+  <com.google.android.material.card.MaterialCardView
       android:layout_width="match_parent"
       android:layout_height="@dimen/voice_recognition_results_renderer_height"
+      style="@style/Widget.Material3.CardView.Elevated"
+      app:cardElevation="5dp"
+      app:cardBackgroundColor="?attr/colorSurface">
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       android:gravity="center_vertical"
       android:orientation="horizontal"
-      >
+      android:padding="8dp">
     <ImageView
         android:id="@+id/ivMic"
         android:layout_marginStart="5dp"
@@ -27,9 +32,10 @@
         android:layout_height="wrap_content"
         tools:text="Test recognized text"
         android:textSize="20sp"
-        android:textColor="@color/default_url_color"
+        android:textColor="?attr/colorOnSurface"
         android:layout_marginStart="10dp"
         android:id="@+id/tvResults"
         />
   </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
 </merge>

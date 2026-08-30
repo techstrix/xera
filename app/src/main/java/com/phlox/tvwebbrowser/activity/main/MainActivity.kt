@@ -3,7 +3,8 @@ package com.phlox.tvwebbrowser.activity.main
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.ClipData
@@ -541,7 +542,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
             e.printStackTrace()
 
             if (!config.isWebEngineGecko()) {
-                val dialogBuilder = AlertDialog.Builder(this)
+                val dialogBuilder = MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.error)
                     .setCancelable(false)
                     .setMessage(R.string.err_webview_can_not_link)
@@ -747,7 +748,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
         val currentHostConfig = tabsModel.findHostConfig(tab,false)
         val currentBlockPopupsLevelValue = currentHostConfig?.popupBlockLevel ?: HostConfig.DEFAULT_BLOCK_POPUPS_VALUE
         val hostName = currentHostConfig?.hostName ?: try { URL(tab.url).host } catch (e: Exception) { "" }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.block_popups_s, hostName))
             .setSingleChoiceItems(R.array.popup_blocking_level, currentBlockPopupsLevelValue) {
                     dialog, itemId -> lifecycleScope.launch {
@@ -1410,7 +1411,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
                     favoriteItem.homePageBookmark = true
                     onEditHomePageBookmark(favoriteItem)
                 } else {
-                    AlertDialog.Builder(this@MainActivity)
+                    MaterialAlertDialogBuilder(this@MainActivity)
                         .setTitle(R.string.bookmarks)
                         .setItems(arrayOf(getString(R.string.edit), getString(R.string.delete))) { _, which ->
                             when (which) {
@@ -1529,7 +1530,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
         if (openUrlInExternalAppDialog != null) {
             return
         }
-        openUrlInExternalAppDialog = AlertDialog.Builder(this)
+        openUrlInExternalAppDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_asks_to_open_unknown_url)
             .setMessage(getString(R.string.site_asks_to_open_unknown_url_message) + "\n\n" + url)
             .setPositiveButton(R.string.yes) { _, _ ->

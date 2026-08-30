@@ -1,6 +1,7 @@
 package com.phlox.tvwebbrowser.activity
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import com.phlox.tvwebbrowser.R
@@ -30,7 +31,7 @@ class IncognitoModeMainActivity: MainActivity() {
     }
 
     private fun showIncognitoModeHintDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.incognito_mode)
             .setIcon(R.drawable.ic_incognito)
             .setMessage(R.string.incognito_mode_hint)

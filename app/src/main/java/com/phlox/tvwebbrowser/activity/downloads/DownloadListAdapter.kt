@@ -2,20 +2,19 @@ package com.phlox.tvwebbrowser.activity.downloads
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import androidx.recyclerview.widget.RecyclerView
 
 import com.phlox.tvwebbrowser.model.Download
 import com.phlox.tvwebbrowser.utils.Utils
 
 import java.util.ArrayList
 
-import de.halfbit.pinnedsection.PinnedSectionListView
-
 /**
  * Created by PDT on 24.01.2017.
+ * Migrated to RecyclerView + MaterialCardView (M3)
  */
 
-class DownloadListAdapter(private val downloadsActivity: DownloadsActivity) : BaseAdapter(), PinnedSectionListView.PinnedSectionListAdapter {
+class DownloadListAdapter(private val downloadsActivity: DownloadsActivity) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val downloads = ArrayList<Download>()
     private var lastHeaderDate: Long = -1
     var realCount: Long = 0
@@ -36,38 +35,30 @@ class DownloadListAdapter(private val downloadsActivity: DownloadsActivity) : Ba
         notifyDataSetChanged()
     }
 
-    override fun getCount(): Int {
-        return downloads.size
-    }
+    val items: List<Download> get() = downloads
 
-    override fun getItem(i: Int): Any {
-        return downloads[i]
-    }
-
-    override fun getItemId(i: Int): Long {
-        return i.toLong()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val hiv = if (convertView != null) {
-            convertView as DownloadListItemView
-        } else {
-            DownloadListItemView(downloadsActivity, getItemViewType(position))
-        }
-        hiv.download = downloads[position]
-        return hiv
-    }
-
-    override fun getViewTypeCount(): Int {
-        return 2
-    }
+    override fun getItemCount(): Int = downloads.size
 
     override fun getItemViewType(position: Int): Int {
         return if (downloads[position].isDateHeader) VIEW_TYPE_HEADER else VIEW_TYPE_DOWNLOAD_ITEM
     }
 
-    override fun isItemViewTypePinned(viewType: Int): Boolean {
-        return viewType == VIEW_TYPE_HEADER
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = DownloadListItemView(downloadsActivity, viewType)
+        return object : RecyclerView.ViewHolder(view) {}
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val view = holder.itemView as DownloadListItemView
+        view.download = downloads[position]
+        // Click handling via view's own listeners (set in DownloadsActivity via view.setOnClickListener)
+        view.setOnClickListener {
+            downloadsActivity.onDownloadItemClick(view)
+        }
+        view.setOnLongClickListener {
+            downloadsActivity.onDownloadItemLongClick(view)
+            true
+        }
     }
 
     fun remove(download: Download) {

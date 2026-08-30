@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="android.widget.LinearLayout"
     tools:orientation="horizontal">
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/ibMenu"
       android:src="@drawable/ic_close_grey_900_36dp"
+        app:icon="@drawable/ic_close_grey_900_36dp"
       android:nextFocusRight="@+id/ibVoiceSearch"
       android:nextFocusDown="@+id/vTabs"
       android:background="@drawable/button_bg_selector"
@@ -16,11 +19,13 @@
       android:focusableInTouchMode="true"
       android:contentDescription="@string/close_application" />
 
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/ibVoiceSearch"
       android:src="@drawable/ic_mic_none_grey_900_36dp"
+        app:icon="@drawable/ic_mic_none_grey_900_36dp"
       android:nextFocusRight="@+id/ibHistory"
       android:nextFocusDown="@+id/vTabs"
       android:background="@drawable/button_bg_selector"
@@ -28,7 +33,8 @@
       android:layout_marginTop="5dp"
       android:contentDescription="@string/voice_search" />
 
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:id="@+id/ibHistory"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -39,13 +45,16 @@
       android:nextFocusRight="@+id/ibFavorites"
       android:nextFocusDown="@+id/vTabs"
       android:src="@drawable/ic_history_grey_900_36dp"
+        app:icon="@drawable/ic_history_grey_900_36dp"
       />
 
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/ibFavorites"
       android:src="@drawable/ic_star_border_grey_900_36dp"
+        app:icon="@drawable/ic_star_border_grey_900_36dp"
       android:nextFocusRight="@+id/ibDownloads"
       android:nextFocusDown="@+id/vTabs"
       android:background="@drawable/button_bg_selector"
@@ -53,7 +62,8 @@
       android:layout_marginTop="5dp"
       android:contentDescription="@string/favorites" />
 
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:id="@+id/ibDownloads"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -64,6 +74,7 @@
       android:nextFocusRight="@+id/ibIncognito"
       android:nextFocusDown="@+id/vTabs"
       android:src="@drawable/ic_file_download_grey_900"
+        app:icon="@drawable/ic_file_download_grey_900"
       />
 
   <com.phlox.tvwebbrowser.widgets.CheckableImageButton
@@ -77,10 +88,13 @@
       android:nextFocusRight="@+id/ibSettings"
       android:nextFocusDown="@+id/vTabs"
       android:src="@drawable/ic_incognito"
+        app:icon="@drawable/ic_incognito"
       />
 
-  <ImageButton
+  <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
       android:src="@drawable/ic_settings_grey_900_24dp"
+        app:icon="@drawable/ic_settings_grey_900_24dp"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:nextFocusRight="@+id/etUrl"

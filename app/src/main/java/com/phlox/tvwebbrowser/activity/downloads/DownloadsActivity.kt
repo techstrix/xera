@@ -1,7 +1,8 @@
 package com.phlox.tvwebbrowser.activity.downloads
 
 import android.app.Activity
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.*
 import android.net.Uri
 import android.os.Build
@@ -12,8 +13,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.webkit.MimeTypeMap
-import android.widget.AbsListView
-import android.widget.AdapterView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,25 +29,13 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
-class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, ActiveDownloadsModel.Listener, AdapterView.OnItemLongClickListener{
+class DownloadsActivity : AppCompatActivity(), ActiveDownloadsModel.Listener{
     private lateinit var vb: ActivityDownloadsBinding
     private lateinit var adapter: DownloadListAdapter
     private val listeners = ArrayList<ActiveDownloadsModel.Listener>()
 
     private lateinit var activeDownloadsModel: ActiveDownloadsModel
     private lateinit var downloadsHistoryModel: DownloadsHistoryModel
-
-    internal var onListScrollListener: AbsListView.OnScrollListener = object : AbsListView.OnScrollListener {
-        override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
-
-        }
-
-        override fun onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
-            if (totalItemCount != 0 && firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
-                downloadsHistoryModel.loadNextItems()
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,11 +47,18 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
         downloadsHistoryModel = ActiveModelsRepository.get(DownloadsHistoryModel::class, this)
 
         adapter = DownloadListAdapter(this)
+        vb.listView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         vb.listView.adapter = adapter
-
-        vb.listView.setOnScrollListener(onListScrollListener)
-        vb.listView.onItemClickListener = this
-        vb.listView.onItemLongClickListener = this
+        vb.listView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val lm = recyclerView.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
+                val total = lm.itemCount
+                val lastVisible = lm.findLastVisibleItemPosition()
+                if (total != 0 && lastVisible >= total - 1) {
+                    downloadsHistoryModel.loadNextItems()
+                }
+            }
+        })
 
         downloadsHistoryModel.lastLoadedItems.subscribe(this, false, {
             if (it.isNotEmpty()) {
@@ -83,30 +77,10 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        activeDownloadsModel.registerListener(this)
-    }
-
-    override fun onPause() {
-        activeDownloadsModel.unregisterListener(this@DownloadsActivity)
-        super.onPause()
-    }
-
-    override fun onItemClick(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
-        val v = view as DownloadListItemView
-        val download = v.download ?: return
-
-        if (download.isDateHeader) {
-            return
-        }
-
-        if (download.size != download.bytesReceived) {
-            //file should be already marked in UI as broken
-            return
-        }
-
-
+    fun onDownloadItemClick(view: DownloadListItemView) {
+        val download = view.download ?: return
+        if (download.isDateHeader) return
+        if (download.size != download.bytesReceived) return
         val fileURI = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Uri.parse(download.filepath)
         } else {
@@ -115,13 +89,8 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
                 Utils.showToast(this, R.string.file_not_found)
                 return
             }
-
-            FileProvider.getUriForFile(this@DownloadsActivity,
-                BuildConfig.APPLICATION_ID + ".provider",
-                file)
+            FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
         }
-
-
         val openIntent = Intent(Intent.ACTION_VIEW)
         val mimeType = contentResolver.getType(fileURI)
         openIntent.setDataAndType(fileURI, mimeType)
@@ -131,22 +100,28 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
         } catch (e: ActivityNotFoundException) {
             Utils.showToast(this, getString(R.string.no_app_for_file_type))
         }
-
     }
 
-    override fun onItemLongClick(adapterView: AdapterView<*>, view: View, i: Int, l: Long): Boolean {
-        val v = view as DownloadListItemView
-        val download = v.download ?: return false
-        if (download.isDateHeader) {
-            return true
-        }
+    fun onDownloadItemLongClick(view: DownloadListItemView): Boolean {
+        val download = view.download ?: return false
+        if (download.isDateHeader) return true
         if (download.size == Download.BROKEN_MARK || download.size == Download.CANCELLED_MARK ||
                 download.size == download.bytesReceived) {
-            showFinishedDownloadOptionsPopup(v)
+            showFinishedDownloadOptionsPopup(view)
         } else {
-            showUnfinishedDownloadOptionsPopup(v)
+            showUnfinishedDownloadOptionsPopup(view)
         }
         return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activeDownloadsModel.registerListener(this)
+    }
+
+    override fun onPause() {
+        activeDownloadsModel.unregisterListener(this@DownloadsActivity)
+        super.onPause()
     }
 
     private fun showUnfinishedDownloadOptionsPopup(v: DownloadListItemView) {
@@ -189,7 +164,7 @@ class DownloadsActivity : AppCompatActivity(), AdapterView.OnItemClickListener, 
         if(canInstallFromOtherSources) {
             launchInstallAPKActivity(this, download)
         } else {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.app_name)
                     .setMessage(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                         R.string.turn_on_unknown_sources_for_app else R.string.turn_on_unknown_sources)

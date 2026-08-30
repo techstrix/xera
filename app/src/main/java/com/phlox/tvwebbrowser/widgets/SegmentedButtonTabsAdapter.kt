@@ -3,30 +3,32 @@ package com.phlox.tvwebbrowser.widgets
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
-import com.fedir.segmentedbutton.SegmentedButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 
-abstract class SegmentedButtonTabsAdapter(val segmentedButton: SegmentedButton, val contentLayout: ViewGroup) {
+abstract class SegmentedButtonTabsAdapter(val segmentedButton: MaterialButtonToggleGroup, val contentLayout: ViewGroup) {
     var currentContentView: View? = null
         private  set
     private val contentViewsCache = SparseArray<View>()
     var callback: Callback? = null
 
     interface Callback {
-        fun onCheckedChanged(button: SegmentedButton, checkedButtonId: Int, byUser: Boolean)
+        fun onCheckedChanged(button: MaterialButtonToggleGroup, checkedButtonId: Int, byUser: Boolean)
     }
 
-    private val segmentedButtonCheckedChangeListener = SegmentedButton.OnCheckedChangeListener { button, checkedButtonId, byUser ->
-        showTab(checkedButtonId)
-        callback?.onCheckedChanged(button, checkedButtonId, byUser)
+    private val segmentedButtonCheckedChangeListener = MaterialButtonToggleGroup.OnButtonCheckedListener { button, checkedButtonId, isChecked ->
+        if (isChecked) {
+            showTab(checkedButtonId)
+            callback?.onCheckedChanged(button, checkedButtonId, true)
+        }
     }
 
     init {
-        segmentedButton.checkedChangeListener = segmentedButtonCheckedChangeListener
-        showTab(segmentedButton.checkedId)
+        segmentedButton.addOnButtonCheckedListener(segmentedButtonCheckedChangeListener)
+        showTab(segmentedButton.checkedButtonId)
     }
 
     private fun showTab(checkedSegmentId: Int) {
-        if (checkedSegmentId == SegmentedButton.NO_ID) return
+        if (checkedSegmentId == View.NO_ID) return
         contentLayout.removeAllViews()
         var view = contentViewsCache.get(checkedSegmentId)
         if (view == null) {

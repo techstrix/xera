@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
@@ -50,12 +51,14 @@
             android:lines="1"
             android:ellipsize="end" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg_selector"
             android:id="@+id/ibTitle"
-            android:src="@drawable/ic_mode_edit_grey_400_18dp" />
+            android:src="@drawable/ic_mode_edit_grey_400_18dp"
+        app:icon="@drawable/ic_mode_edit_grey_400_18dp" />
     </LinearLayout>
 
     <TextView
@@ -87,12 +90,14 @@
             android:lines="1"
             android:ellipsize="end" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg_selector"
             android:id="@+id/ibUrl"
-            android:src="@drawable/ic_mode_edit_grey_400_18dp" />
+            android:src="@drawable/ic_mode_edit_grey_400_18dp"
+        app:icon="@drawable/ic_mode_edit_grey_400_18dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -102,19 +107,19 @@
         android:padding="5dp"
         android:layout_marginTop="10dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_bg_selector"
             android:text="@string/cancel"
             android:id="@+id/btnCancel"
             android:layout_marginEnd="10dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_bg_selector"
             android:text="@string/done"
             android:id="@+id/btnDone"
             android:layout_marginStart="10dp"

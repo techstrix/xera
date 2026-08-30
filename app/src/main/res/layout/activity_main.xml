@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:id="@+id/flWebViewContainer" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="3dp"
@@ -250,7 +250,7 @@
         android:clipToPadding="false"
         />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progressBarGeneric"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"

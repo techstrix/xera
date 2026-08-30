@@ -13,7 +13,7 @@
       android:layout_weight="1"
       android:background="@color/top_bar_background"
       />
-  <Button
+  <com.google.android.material.button.MaterialButton
       android:id="@+id/btnAdd"
       android:layout_width="40dp"
       android:layout_height="40dp"

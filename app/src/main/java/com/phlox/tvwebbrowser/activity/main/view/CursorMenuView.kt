@@ -2,7 +2,8 @@ package com.phlox.tvwebbrowser.activity.main.view
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -215,7 +216,7 @@ class CursorMenuView @JvmOverloads constructor(
             setPadding(pad, pad, pad, pad)
             addView(checkBox)
         }
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(R.string.direct_navigation_mode_title)
             .setMessage(R.string.direct_navigation_mode_message)
             .setView(container)

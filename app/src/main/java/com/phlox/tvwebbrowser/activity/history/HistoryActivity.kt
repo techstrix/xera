@@ -1,6 +1,7 @@
 package com.phlox.tvwebbrowser.activity.history
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -8,9 +9,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.AbsListView
-import android.widget.AdapterView
-import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -28,26 +26,14 @@ import kotlinx.coroutines.launch
  * Created by fedex on 29.12.16.
  */
 
-class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
+class HistoryActivity : AppCompatActivity(){
 
     private lateinit var vb: ActivityHistoryBinding
-    private var ibDelete: ImageButton? = null
+    private var ibDelete: View? = null
     private var adapter: HistoryAdapter? = null
     private lateinit var historyModel: HistoryModel
     private val voiceSearchHelper = VoiceSearchHelper(this, VOICE_SEARCH_REQUEST_CODE,
         VOICE_SEARCH_PERMISSIONS_REQUEST_CODE)
-
-    internal var onListScrollListener: AbsListView.OnScrollListener = object : AbsListView.OnScrollListener {
-        override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
-
-        }
-
-        override fun onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
-            if (totalItemCount != 0 && firstVisibleItem + visibleItemCount >= totalItemCount - 1 && "" == historyModel.searchQuery) {
-                historyModel.loadItems(false, adapter!!.realCount)
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,12 +44,20 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
 
         ibDelete = findViewById(R.id.ibDelete)
 
-        adapter = HistoryAdapter()
+        adapter = HistoryAdapter(this)
+        vb.listView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         vb.listView.adapter = adapter
-
-        vb.listView.setOnScrollListener(onListScrollListener)
-        vb.listView.onItemClickListener = this
-        vb.listView.onItemLongClickListener = this
+        // MaterialDivider already in item layout, no extra decoration needed
+        vb.listView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val lm = recyclerView.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
+                val total = lm.itemCount
+                val lastVisible = lm.findLastVisibleItemPosition()
+                if (total != 0 && lastVisible >= total - 1 && "" == historyModel.searchQuery) {
+                    historyModel.loadItems(false, adapter!!.realCount)
+                }
+            }
+        })
 
         historyModel.lastLoadedItems.subscribe(this, false) {
             if (it.isEmpty()) return@subscribe
@@ -74,9 +68,32 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
         historyModel.loadItems(false)
     }
 
+    fun onHistoryItemClick(view: HistoryItemView) {
+        val hi = view.historyItem
+        if (hi!!.isDateHeader) return
+        if (adapter!!.isMultiselectMode) {
+            view.setSelection(!hi.selected)
+            updateMenu()
+        } else {
+            val resultIntent = Intent()
+            resultIntent.putExtra(KEY_URL, hi.url)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+    }
+
+    fun onHistoryItemLongClick(view: HistoryItemView): Boolean {
+        if (view.historyItem?.isDateHeader == true) return false
+        if (adapter!!.isMultiselectMode) return false
+        adapter!!.isMultiselectMode = true
+        view.setSelection(true)
+        updateMenu()
+        return true
+    }
+
     private fun showDeleteDialog(deleteAll: Boolean) {
         if (adapter!!.items.isEmpty() || (adapter!!.selectedItems.isEmpty() && !deleteAll)) return
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete)
                 .setMessage(if (deleteAll) R.string.msg_delete_history_all else R.string.msg_delete_history)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -132,28 +149,7 @@ class HistoryActivity : AppCompatActivity(), AdapterView.OnItemClickListener, Ad
         }
     }
 
-    override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-        val hi = (view as HistoryItemView).historyItem
-        if (hi!!.isDateHeader) return
-        if (adapter!!.isMultiselectMode) {
-            view.setSelection(!hi.selected)
-            updateMenu()
-        } else {
-            val resultIntent = Intent()
-            resultIntent.putExtra(KEY_URL, hi.url)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
-    }
 
-    override fun onItemLongClick(adapterView: AdapterView<*>, view: View, i: Int, l: Long): Boolean {
-        if (adapter!!.isMultiselectMode) return false
-        adapter!!.isMultiselectMode = true
-        val v = view as HistoryItemView
-        v.setSelection(true)
-        updateMenu()
-        return true
-    }
 
     private fun updateMenu() {
         val selection = adapter!!.selectedItems

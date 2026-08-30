@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,12 +22,17 @@
             android:textSize="16sp"
             />
 
-        <Spinner
-            android:id="@+id/spWebEngine"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:dropDownWidth="300dp"
-            />
+            android:hint="@string/web_browser_engine_temporary_setting">
+            <AutoCompleteTextView
+                android:id="@+id/spWebEngine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <TextView
@@ -37,12 +43,17 @@
         android:layout_marginTop="20dp"
         />
 
-    <Spinner
-        android:id="@+id/spEngine"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dropDownWidth="300dp"
-        />
+        android:hint="@string/choose_default_search_engine">
+        <AutoCompleteTextView
+            android:id="@+id/spEngine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/llURL"
@@ -60,15 +71,17 @@
           android:textSize="16sp"
           />
 
-      <EditText
-          android:id="@+id/etUrl"
+      <com.google.android.material.textfield.TextInputLayout
+          style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:ems="10"
-          android:hint="@string/search_engine_url_with_query_placeholder_query"
-          android:importantForAutofill="no"
-          android:inputType="textUri"
-          />
+          android:hint="@string/search_engine_url_with_query_placeholder_query">
+          <com.google.android.material.textfield.TextInputEditText
+              android:id="@+id/etUrl"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:inputType="textUri" />
+      </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <TextView
@@ -79,12 +92,17 @@
         android:textSize="16sp"
         />
 
-    <Spinner
-        android:id="@+id/spHomePage"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dropDownWidth="300dp"
-        />
+        android:hint="@string/home_page">
+        <AutoCompleteTextView
+            android:id="@+id/spHomePage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/llCustomHomePage"
@@ -103,15 +121,17 @@
             android:textSize="16sp"
             />
 
-        <EditText
-            android:id="@+id/etCustomHomePageUrl"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/url"
-            android:importantForAutofill="no"
-            android:inputType="textUri"
-            />
+            android:hint="@string/url">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCustomHomePageUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -131,12 +151,17 @@
             android:textSize="16sp"
             />
 
-        <Spinner
-            android:id="@+id/spHomePageLinks"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:dropDownWidth="300dp"
-            />
+            android:hint="@string/home_page_links">
+            <AutoCompleteTextView
+                android:id="@+id/spHomePageLinks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <TextView
@@ -147,12 +172,17 @@
         android:layout_marginTop="20dp"
         />
 
-    <Spinner
-        android:id="@+id/spTitles"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dropDownWidth="300dp"
-        />
+        android:hint="@string/choose_user_agent_string">
+        <AutoCompleteTextView
+            android:id="@+id/spTitles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/llUAString"
@@ -170,15 +200,17 @@
           android:textSize="16sp"
           />
 
-      <EditText
-          android:id="@+id/etUAString"
+      <com.google.android.material.textfield.TextInputLayout
+          style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:ems="10"
-          android:hint="@string/edit_user_agent_string"
-          android:importantForAutofill="no"
-          android:inputType="textUri"
-          />
+          android:hint="@string/edit_user_agent_string">
+          <com.google.android.material.textfield.TextInputEditText
+              android:id="@+id/etUAString"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:inputType="textUri" />
+      </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -201,7 +233,7 @@
             android:text="@string/toggle_ads_blocking"
             android:textSize="16sp" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/scAdblock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -209,14 +241,20 @@
             android:duplicateParentState="true" />
     </LinearLayout>
 
-  <LinearLayout
-      android:id="@+id/llAdBlockerDetails"
+  <com.google.android.material.card.MaterialCardView
+      style="@style/Widget.Material3.CardView.Elevated"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="8dp"
+      app:cardCornerRadius="12dp"
+      app:strokeColor="?attr/colorOutlineVariant"
+      app:strokeWidth="1dp">
+    <LinearLayout
+      android:id="@+id/llAdBlockerDetails"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
       android:orientation="vertical"
       android:padding="12dp"
-      android:background="@drawable/settings_card_bg"
       >
     <!-- Dedicated Ad Blocking Section — expands master toggle, TV-friendly -->
     <TextView
@@ -249,16 +287,18 @@
         android:text="@string/adblock_custom_url_label"
         android:textSize="13sp"
         />
-    <EditText
-        android:id="@+id/etAdBlockerListUrl"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:hint="@string/adblock_custom_url_hint"
-        android:importantForAutofill="no"
-        android:inputType="textUri"
-        android:nextFocusDown="@+id/btnAdBlockerUpdate"
-        />
+        android:nextFocusDown="@+id/btnAdBlockerUpdate">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAdBlockerListUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textUri" />
+    </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -289,7 +329,8 @@
             tools:text="0 blocked (total)"
             />
       </LinearLayout>
-      <ImageButton
+      <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.IconButton"
           android:id="@+id/btnAdBlockerUpdate"
           android:layout_width="48dp"
           android:layout_height="48dp"
@@ -297,17 +338,17 @@
           android:contentDescription="@string/update_ad_blocker_list"
           android:nextFocusDown="@+id/spTheme"
           android:src="@drawable/ic_refresh_grey_900_24dp"
+        app:icon="@drawable/ic_refresh_grey_900_24dp"
           android:background="?attr/selectableItemBackgroundBorderless"
           android:focusable="true"
           />
-      <ProgressBar
+      <com.google.android.material.progressindicator.CircularProgressIndicator
           android:id="@+id/pbAdBlockerListLoading"
-          style="?android:attr/progressBarStyle"
           android:layout_width="48dp"
           android:layout_height="48dp"
           android:layout_weight="0"
           android:visibility="gone"
-          />
+          android:indeterminate="true" />
     </LinearLayout>
     <TextView
         android:id="@+id/tvAdBlockerError"
@@ -318,7 +359,8 @@
         android:textSize="12sp"
         android:layout_marginTop="4dp"
         />
-  </LinearLayout>
+    </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
 
   <LinearLayout
       android:id="@+id/llThemeSettings"
@@ -335,13 +377,18 @@
         android:textSize="16sp"
         />
 
-    <Spinner
-        android:id="@+id/spTheme"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dropDownWidth="300dp"
-        android:nextFocusDown="@+id/scWebViewAlgorithmicDarkeningWithDarkUiMode"
-        />
+        android:hint="@string/theme"
+        android:nextFocusDown="@+id/scWebViewAlgorithmicDarkeningWithDarkUiMode">
+        <AutoCompleteTextView
+            android:id="@+id/spTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
   </LinearLayout>
 
   <LinearLayout
@@ -360,7 +407,7 @@
         android:text="@string/webview_use_algorithmic_darkening_with_dark_ui_mode"
         android:textSize="16sp"
         />
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/scWebViewAlgorithmicDarkeningWithDarkUiMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -386,7 +433,7 @@
         android:text="@string/allow_autoplay_media"
         android:textSize="16sp"
         />
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/scAllowAutoplayMedia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -412,7 +459,7 @@
         android:text="@string/web_engine_debug"
         android:textSize="16sp"
         />
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/scWebEngineDebug"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -438,7 +485,7 @@
         android:text="@string/toggle_keep_screen_on"
         android:textSize="16sp"
         />
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/scKeepScreenOn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -463,7 +510,7 @@
         android:text="@string/navigate_with_joystick_axes"
         android:textSize="16sp"
         />
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/scNavigateWithJoystickAxes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -485,12 +532,15 @@
       android:gravity="center_vertical"
       android:orientation="horizontal"
       >
-    <SeekBar
+    <com.google.android.material.slider.Slider
         android:id="@+id/sbCursorMaxSpeed"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:max="175"
+        android:valueFrom="0"
+        android:valueTo="175"
+        android:stepSize="1"
+        app:labelBehavior="withinBounds"
         android:nextFocusDown="@+id/sbCursorAcceleration"
         android:nextFocusUp="@+id/scNavigateWithJoystickAxes"
         />
@@ -517,12 +567,15 @@
       android:gravity="center_vertical"
       android:orientation="horizontal"
       >
-    <SeekBar
+    <com.google.android.material.slider.Slider
         android:id="@+id/sbCursorAcceleration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:max="175"
+        android:valueFrom="0"
+        android:valueTo="175"
+        android:stepSize="1"
+        app:labelBehavior="withinBounds"
         android:nextFocusDown="@+id/btnClearWebCache"
         android:nextFocusUp="@+id/sbCursorMaxSpeed"
         />
@@ -536,8 +589,9 @@
         tools:text="100%"
         />
   </LinearLayout>
-  <Button
+  <com.google.android.material.button.MaterialButton
       android:id="@+id/btnClearWebCache"
+      style="@style/Widget.Material3.Button.TonalButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="10dp"

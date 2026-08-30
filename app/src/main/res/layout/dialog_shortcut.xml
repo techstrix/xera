@@ -40,7 +40,7 @@
         android:text="TextView"
         android:textSize="20sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSetKey"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
         android:lines="1"
         android:text="@string/set_key_for_action" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnClearKey"
         android:layout_width="200dp"
         android:layout_height="wrap_content"

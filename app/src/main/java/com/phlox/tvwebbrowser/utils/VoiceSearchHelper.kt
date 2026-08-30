@@ -21,6 +21,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.databinding.ViewSpeachRecognizerResultsBinding
 
@@ -68,7 +69,7 @@ class VoiceSearchHelper(private val activity: Activity, private val requestCode:
     }
 
     private fun showInstallVoiceEnginePrompt(activity: Activity) {
-        val dialogBuilder = AlertDialog.Builder(activity)
+        val dialogBuilder = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.app_name)
             .setMessage(R.string.voice_search_not_found)
             .setNeutralButton(android.R.string.ok) { _, _ -> }
