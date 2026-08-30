@@ -68,18 +68,19 @@
             android:id="@+id/tvURL" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
-            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/progressBar"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurfaceVariant"
             android:visibility="invisible"/>
     </LinearLayout>
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar2"
+        app:indicatorColor="?attr/colorPrimary"
         android:visibility="gone"
         android:layout_weight="0" />
 
