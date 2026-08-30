@@ -1,7 +1,8 @@
 package com.phlox.tvwebbrowser.webengine.gecko.delegates
 
 import android.app.Activity
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -52,7 +53,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         }
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue(prompt.dismiss())
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
             .setTitle(prompt.title)
             .setMessage(prompt.message)
             .setPositiveButton(android.R.string.ok,  /* onClickListener */null)
@@ -67,7 +68,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val builder: MaterialAlertDialogBuilder = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.before_unload_title)
             .setMessage(R.string.before_unload_message)
 
@@ -101,7 +102,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         }
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val builder: MaterialAlertDialogBuilder = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.repost_confirm_title)
             .setMessage(R.string.repost_confirm_message)
 
@@ -136,7 +137,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
         val builder =
-            AlertDialog.Builder(activity).setTitle(prompt.title).setMessage(prompt.message)
+            MaterialAlertDialogBuilder(activity).setTitle(prompt.title).setMessage(prompt.message)
 
         val res = GeckoResult<PromptResponse>()
 
@@ -168,7 +169,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         }
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         val container = addStandardLayout(builder, prompt.title!!, prompt.message)
         val editText = EditText(builder.context)
         editText.setText(prompt.defaultValue)
@@ -192,7 +193,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         val container = addStandardLayout(builder, prompt.title, prompt.message)
 
         val flags = prompt.authOptions.flags
@@ -260,7 +261,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         }
         val activity: Activity = webEngine.callback?.getActivity()
             ?: return GeckoResult.fromValue<PromptResponse>(prompt.dismiss())
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         addStandardLayout(builder, prompt.title,  /* msg */null)
 
         val initial: Int = parseColor(
@@ -376,7 +377,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         val cal = formatter.calendar
         cal.time = date
 
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         val inflater = LayoutInflater.from(builder.context)
         val datePicker: DatePicker?
         if (prompt.type == DateTimePrompt.Type.DATE || prompt.type == DateTimePrompt.Type.MONTH || prompt.type == DateTimePrompt.Type.WEEK || prompt.type == DateTimePrompt.Type.DATETIME_LOCAL) {
@@ -602,7 +603,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
     }
 
     private fun createStandardDialog(
-        builder: AlertDialog.Builder,
+        builder: MaterialAlertDialogBuilder,
         prompt: BasePrompt,
         response: GeckoResult<PromptResponse>
     ): AlertDialog {
@@ -615,7 +616,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         return dialog
     }
 
-    private fun getViewPadding(builder: AlertDialog.Builder): Int {
+    private fun getViewPadding(builder: MaterialAlertDialogBuilder): Int {
         val attr = builder
             .context
             .obtainStyledAttributes(intArrayOf(android.R.attr.listPreferredItemPaddingLeft))
@@ -625,7 +626,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
     }
 
     private fun addStandardLayout(
-        builder: AlertDialog.Builder, title: String?, msg: String?
+        builder: MaterialAlertDialogBuilder, title: String?, msg: String?
     ): LinearLayout? {
         val scrollView = ScrollView(builder.context)
         val container = LinearLayout(builder.context)
@@ -702,7 +703,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
             res.complete(prompt.dismiss())
             return
         }
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         addStandardLayout(builder, title, message)
         val list = ListView(builder.context)
         if (type == ChoicePrompt.Type.MULTIPLE) {
@@ -954,7 +955,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
             res.complete(ContentPermission.VALUE_PROMPT)
             return res
         }
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         builder
             .setTitle(title)
             .setNegativeButton(
@@ -972,7 +973,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
         geckoSession: GeckoSession?, title: String?, reportAction: GeckoResult<SlowScriptResponse?>
     ) {
         val activity: Activity = webEngine.callback?.getActivity() ?: return
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         builder
             .setTitle(title)
             .setNegativeButton(
@@ -1033,7 +1034,7 @@ class MyPromptDelegate(private val webEngine: GeckoWebEngine): GeckoSession.Prom
             callback.reject()
             return
         }
-        val builder = AlertDialog.Builder(activity)
+        val builder = MaterialAlertDialogBuilder(activity)
         val container = addStandardLayout(builder, title,  null)
         val videoSpinner: Spinner? = if (video != null) {
             addMediaSpinner(builder.context, container, video, videoNames)

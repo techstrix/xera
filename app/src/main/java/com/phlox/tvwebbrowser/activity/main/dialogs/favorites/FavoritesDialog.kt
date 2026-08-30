@@ -20,10 +20,10 @@ class FavoritesDialog(context: Context, val scope: CoroutineScope, private val c
     private val adapter = FavoritesListAdapter(items, this)
 
     private val tvPlaceholder: TextView
-    private val listView: ListView
+    private val listView: androidx.recyclerview.widget.RecyclerView
     private val btnAdd: Button
     private val btnEdit: Button
-    private val pbLoading: ProgressBar
+    private val pbLoading: View
 
     interface Callback {
         fun onFavoriteChoosen(item: FavoriteItem?)
@@ -35,33 +35,30 @@ class FavoritesDialog(context: Context, val scope: CoroutineScope, private val c
         setTitle(R.string.bookmarks)
 
         tvPlaceholder = findViewById<View>(R.id.tvPlaceholder) as TextView
-        listView = findViewById<View>(R.id.listView) as ListView
+        listView = findViewById<View>(R.id.listView) as androidx.recyclerview.widget.RecyclerView
         btnAdd = findViewById<View>(R.id.btnAdd) as Button
         btnEdit = findViewById<View>(R.id.btnEdit) as Button
-        pbLoading = findViewById<View>(R.id.pbLoading) as ProgressBar
+        pbLoading = findViewById(R.id.pbLoading)
 
         btnAdd.setOnClickListener { showAddItemDialog() }
 
         btnEdit.setOnClickListener {
             adapter.isEditMode = !adapter.isEditMode
             btnEdit.setText(if (adapter.isEditMode) R.string.done else R.string.edit)
-            listView.itemsCanFocus = adapter.isEditMode
         }
 
-        listView.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
-            val item = (view as FavoriteItemView).favorite
-            if (item!!.isFolder) {
-
-            } else {
-                callback.onFavoriteChoosen(item)
-                dismiss()
-            }
+        listView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        listView.adapter = adapter
+        adapter.onItemClick = { item ->
+            callback.onFavoriteChoosen(item)
+            dismiss()
         }
+        // Handle item click for bookmark selection (when not in edit mode)
+        // Note: FavoriteItemView handles its own delete/edit clicks via listener
 
         pbLoading.visibility = View.VISIBLE
         listView.visibility = View.GONE
         tvPlaceholder.visibility = View.GONE
-        listView.adapter = adapter
 
         scope.launch(Dispatchers.Main) {
             items.addAll(AppDatabase.db.favoritesDao().getAll())

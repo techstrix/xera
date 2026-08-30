@@ -1,6 +1,7 @@
 package com.phlox.tvwebbrowser.activity.main.view.tabs
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
@@ -62,7 +63,7 @@ class TabsView @JvmOverloads constructor(
 
   fun showTabOptions(tab: WebTabState) {
     val tabIndex = tabsModel.tabsStates.indexOf(tab)
-    AlertDialog.Builder(context)
+    MaterialAlertDialogBuilder(context)
       .setTitle(R.string.tabs)
       .setItems(R.array.tabs_options) { _, i ->
         when (i) {

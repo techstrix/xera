@@ -113,6 +113,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation(libs.google.material)
     implementation(libs.segmented.button)
     implementation(libs.ad.block)
     implementation(libs.pinned.section.listview)

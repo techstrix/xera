@@ -41,6 +41,8 @@ class TVBro : Application(), Application.ActivityLifecycleCallbacks {
     override fun onCreate() {
         Log.i(TAG, "onCreate")
         super.onCreate()
+        // M3 Dynamic Color (S+), fallback to themes.xml mapping
+        try { com.google.android.material.color.DynamicColors.applyToActivitiesIfAvailable(this) } catch (e: Exception) { Log.w(TAG, "DynamicColors not applied", e) }
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             //we need this since when targetSdkVersion >= 33 then

@@ -5,38 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.fedir.segmentedbutton.SegmentedButton
+    <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/sbTabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:nextFocusDown="@android:id/tabcontent"
         app:checkedButton="@+id/btnMainTab"
-        app:cornerRadiusX="0"
-        app:cornerRadiusY="0">
-        <Button
+        app:singleSelection="true"
+        app:selectionRequired="true">
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMainTab"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="@string/main"
-            android:background="@drawable/settings_tab_bg_selector"/>
-        <Button
+            android:text="@string/main" />
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShortcutsTab"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="@string/shortcuts"
-            android:background="@drawable/settings_tab_bg_selector"
             android:layout_marginStart="1dp"
             android:layout_marginEnd="1dp"/>
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnVersionTab"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="@string/version_and_updates"
-            android:background="@drawable/settings_tab_bg_selector"/>
-    </com.fedir.segmentedbutton.SegmentedButton>
+            android:text="@string/version_and_updates" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <FrameLayout
         android:id="@+id/flTabsContent"

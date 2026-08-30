@@ -11,6 +11,7 @@ import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.FileProvider
 import com.phlox.tvwebbrowser.R
 import kotlinx.coroutines.*
@@ -99,7 +100,7 @@ class UpdateChecker(val currentVersionCode: Int) {
         textView.text = Html.fromHtml(message)
         val padding = Utils.D2P(context, 25f).toInt()
         textView.setPadding(padding, padding, padding, padding)
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.new_version_dialog_title)
                 .setView(textView)
                 .setPositiveButton(R.string.download) { _, _ -> callback.download() }

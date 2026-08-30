@@ -6,7 +6,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import com.fedir.segmentedbutton.SegmentedButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.phlox.tvwebbrowser.R
 import com.phlox.tvwebbrowser.activity.main.SettingsModel
 import com.phlox.tvwebbrowser.widgets.SegmentedButtonTabsAdapter
@@ -15,7 +15,7 @@ class SettingsDialog(context: Context, val model: SettingsModel) :
     Dialog(context, R.style.SettingsDialog),
     DialogInterface.OnDismissListener, VersionSettingsView.Callback {
     private var mainView: MainSettingsView? = null
-    private var sbTabs: SegmentedButton
+    private var sbTabs: MaterialButtonToggleGroup
 
     init {
         setTitle(R.string.settings)

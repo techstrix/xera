@@ -1,0 +1,15 @@
+<resources>
+    <!-- Night overrides for M3 DayNight — keeps same M3 roles but dark surface -->
+    <style name="Theme.TVBroBase" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#75D5FA</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorPrimaryContainer">#323940</item>
+        <item name="colorOnPrimaryContainer">#FFFFFF</item>
+        <item name="colorSecondary">#5FACFF</item>
+        <item name="colorSurface">#2F2F2F</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorSurfaceVariant">#3F3F3F</item>
+        <item name="colorOutline">#5A5A5A</item>
+        <item name="colorOutlineVariant">#2D2D2D</item>
+    </style>
+</resources>

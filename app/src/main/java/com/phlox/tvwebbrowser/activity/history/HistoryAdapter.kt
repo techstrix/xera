@@ -2,20 +2,19 @@ package com.phlox.tvwebbrowser.activity.history
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import androidx.recyclerview.widget.RecyclerView
 
 import com.phlox.tvwebbrowser.model.HistoryItem
 import com.phlox.tvwebbrowser.utils.Utils
 
 import java.util.ArrayList
 
-import de.halfbit.pinnedsection.PinnedSectionListView
-
 /**
  * Created by fedex on 29.12.16.
+ * Migrated to RecyclerView + MaterialCardView (M3)
  */
 
-class HistoryAdapter : BaseAdapter(), PinnedSectionListView.PinnedSectionListAdapter {
+class HistoryAdapter(private val activity: HistoryActivity? = null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val items = ArrayList<HistoryItem>()
     private var lastHeaderDate: Long = -1
     var realCount: Long = 0
@@ -58,39 +57,27 @@ class HistoryAdapter : BaseAdapter(), PinnedSectionListView.PinnedSectionListAda
         notifyDataSetChanged()
     }
 
-    override fun getCount(): Int {
-        return items.size
-    }
-
-    override fun getItem(position: Int): Any {
-        return items[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val hiv: HistoryItemView
-        if (convertView != null) {
-            hiv = convertView as HistoryItemView
-        } else {
-            hiv = HistoryItemView(parent.context, getItemViewType(position))
-        }
-        hiv.setHistoryItem(items[position], isMultiselectMode)
-        return hiv
-    }
-
-    override fun getViewTypeCount(): Int {
-        return 2
-    }
+    override fun getItemCount(): Int = items.size
 
     override fun getItemViewType(position: Int): Int {
         return if (items[position].isDateHeader) VIEW_TYPE_HEADER else VIEW_TYPE_HISTORY_ITEM
     }
 
-    override fun isItemViewTypePinned(viewType: Int): Boolean {
-        return viewType == VIEW_TYPE_HEADER
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = HistoryItemView(parent.context, viewType)
+        return object : RecyclerView.ViewHolder(view) {}
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val view = holder.itemView as HistoryItemView
+        view.setHistoryItem(items[position], isMultiselectMode)
+        // TV focus + click handling (keep positions, handle header as non-clickable)
+        view.setOnClickListener {
+            activity?.onHistoryItemClick(view)
+        }
+        view.setOnLongClickListener {
+            activity?.onHistoryItemLongClick(view) ?: false
+        }
     }
 
     fun erase() {

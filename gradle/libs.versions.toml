@@ -14,6 +14,7 @@ recyclerview = "1.4.0"
 coroutines-android = "1.10.2"
 lifecycle-runtime-ktx = "2.10.0"
 room = "2.8.4"
+material = "1.12.0"
 
 junit = "4.13.2"
 robolectric = "4.16.1"
@@ -42,6 +43,9 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+
+# Material
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Third-party
 segmented-button = { group = "com.github.truefedex", name = "segmented-button", version.ref = "segmented-button" }

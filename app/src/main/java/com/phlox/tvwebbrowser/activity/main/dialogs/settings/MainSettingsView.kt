@@ -1,6 +1,7 @@
 package com.phlox.tvwebbrowser.activity.main.dialogs.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
@@ -81,15 +82,14 @@ class MainSettingsView @JvmOverloads constructor(
         val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, Config.SupportedWebEngines)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        vb.spWebEngine.adapter = adapter
-
-        vb.spWebEngine.setSelection(Config.SupportedWebEngines.indexOf(config.webEngine), false)
-
-        vb.spWebEngine.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                if (config.webEngine == Config.SupportedWebEngines[position]) return
+        (vb.spWebEngine as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(adapter)
+            val sel = Config.SupportedWebEngines.indexOf(config.webEngine)
+            if (sel != -1) actv.setText(adapter.getItem(sel).toString(), false)
+            actv.setOnItemClickListener { _, _, position, _ ->
+                if (config.webEngine == Config.SupportedWebEngines[position]) return@setOnItemClickListener
                 if (Config.SupportedWebEngines[position] == Config.ENGINE_GECKO_VIEW && !Config.canRecommendGeckoView()) {
-                    AlertDialog.Builder(context)
+                    MaterialAlertDialogBuilder(context)
                         .setTitle(R.string.warning)
                         .setMessage(R.string.settings_engine_change_gecko_msg)
                         .setPositiveButton(R.string.ok) { _, _ ->
@@ -97,12 +97,13 @@ class MainSettingsView @JvmOverloads constructor(
                             showRestartDialog()
                         }
                         .setNegativeButton(R.string.cancel) { _, _ ->
-                            vb.spWebEngine.setSelection(Config.SupportedWebEngines.indexOf(config.webEngine), false)
+                            val cur = Config.SupportedWebEngines.indexOf(config.webEngine)
+                            if (cur != -1) actv.setText(adapter.getItem(cur).toString(), false)
                         }
                         .show()
-                    return
+                    return@setOnItemClickListener
                 } else if (Config.SupportedWebEngines[position] == Config.ENGINE_WEB_VIEW) {
-                    AlertDialog.Builder(context)
+                    MaterialAlertDialogBuilder(context)
                         .setTitle(R.string.warning)
                         .setMessage(R.string.settings_engine_change_webview_msg)
                         .setPositiveButton(R.string.ok) { _, _ ->
@@ -110,21 +111,20 @@ class MainSettingsView @JvmOverloads constructor(
                             showRestartDialog()
                         }
                         .setNegativeButton(R.string.cancel) { _, _ ->
-                            vb.spWebEngine.setSelection(Config.SupportedWebEngines.indexOf(config.webEngine), false)
+                            val cur = Config.SupportedWebEngines.indexOf(config.webEngine)
+                            if (cur != -1) actv.setText(adapter.getItem(cur).toString(), false)
                         }
                         .show()
-                    return
+                    return@setOnItemClickListener
                 }
                 config.webEngine = Config.SupportedWebEngines[position]
                 showRestartDialog()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
     private fun showRestartDialog() {
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(R.string.need_restart)
             .setMessage(R.string.need_restart_message)
             .setPositiveButton(R.string.exit) { _, _ ->
@@ -140,18 +140,14 @@ class MainSettingsView @JvmOverloads constructor(
         val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, context.resources.getStringArray(R.array.themes))
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        vb.spTheme.adapter = adapter
-
-        vb.spTheme.setSelection(config.theme.value.ordinal, false)
-
-        vb.spTheme.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                if (config.theme.value.ordinal == position) return
+        (vb.spTheme as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(adapter)
+            actv.setText(adapter.getItem(config.theme.value.ordinal).toString(), false)
+            actv.setOnItemClickListener { _, _, position, _ ->
+                if (config.theme.value.ordinal == position) return@setOnItemClickListener
                 config.theme.value = Config.Theme.values()[position]
                 Toast.makeText(context, context.getString(R.string.need_restart), Toast.LENGTH_SHORT).show()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
@@ -178,7 +174,7 @@ class MainSettingsView @JvmOverloads constructor(
                 return@setOnCheckedChangeListener
             }
 
-            AlertDialog.Builder(context)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.warning)
                 .setMessage(R.string.web_engine_debug_warning_message)
                 .setPositiveButton(R.string.ok) { _, _ ->
@@ -214,31 +210,31 @@ class MainSettingsView @JvmOverloads constructor(
         val minP = Config.CURSOR_PHYSICS_PERCENT_MIN
         val maxP = Config.CURSOR_PHYSICS_PERCENT_MAX
         val range = maxP - minP
-        vb.sbCursorMaxSpeed.max = range
-        vb.sbCursorAcceleration.max = range
+        vb.sbCursorMaxSpeed.valueFrom = minP.toFloat()
+        vb.sbCursorMaxSpeed.valueTo = maxP.toFloat()
+        vb.sbCursorMaxSpeed.stepSize = 1f
+        vb.sbCursorAcceleration.valueFrom = minP.toFloat()
+        vb.sbCursorAcceleration.valueTo = maxP.toFloat()
+        vb.sbCursorAcceleration.stepSize = 1f
         fun refreshValueLabels() {
             vb.tvCursorMaxSpeedValue.text = context.getString(R.string.cursor_physics_percent, config.cursorMaxSpeedPercent)
             vb.tvCursorAccelerationValue.text = context.getString(R.string.cursor_physics_percent, config.cursorAccelerationPercent)
         }
-        vb.sbCursorMaxSpeed.progress = config.cursorMaxSpeedPercent - minP
-        vb.sbCursorAcceleration.progress = config.cursorAccelerationPercent - minP
+        vb.sbCursorMaxSpeed.value = config.cursorMaxSpeedPercent.toFloat()
+        vb.sbCursorAcceleration.value = config.cursorAccelerationPercent.toFloat()
         refreshValueLabels()
-        vb.sbCursorMaxSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                config.cursorMaxSpeedPercent = minP + progress
+        vb.sbCursorMaxSpeed.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                config.cursorMaxSpeedPercent = value.toInt()
                 refreshValueLabels()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-        vb.sbCursorAcceleration.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                config.cursorAccelerationPercent = minP + progress
+        }
+        vb.sbCursorAcceleration.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                config.cursorAccelerationPercent = value.toInt()
                 refreshValueLabels()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
+        }
     }
 
     private fun initAdBlockConfigUI() {
@@ -285,7 +281,7 @@ class MainSettingsView @JvmOverloads constructor(
         for (i in Config.DEFAULT_UBLOCK_LIST_NAMES.indices) {
             val name = Config.DEFAULT_UBLOCK_LIST_NAMES[i]
             val url = Config.DEFAULT_UBLOCK_LIST_URLS[i]
-            val cb = android.widget.CheckBox(context).apply {
+            val cb = com.google.android.material.checkbox.MaterialCheckBox(context).apply {
                 text = name
                 isChecked = enabled.contains(url)
                 isFocusable = true
@@ -312,7 +308,7 @@ class MainSettingsView @JvmOverloads constructor(
         for (i in Config.EXTRA_UBLOCK_LIST_NAMES.indices) {
             val name = Config.EXTRA_UBLOCK_LIST_NAMES[i]
             val url = Config.EXTRA_UBLOCK_LIST_URLS[i]
-            val cb = android.widget.CheckBox(context).apply {
+            val cb = com.google.android.material.checkbox.MaterialCheckBox(context).apply {
                 text = name
                 isChecked = enabled.contains(url)
                 isFocusable = true
@@ -398,29 +394,24 @@ class MainSettingsView @JvmOverloads constructor(
 
         val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, settingsModel.userAgentStringTitles)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        vb.spTitles.adapter = adapter
-
-        if (selected != -1) {
-            vb.spTitles.setSelection(selected, false)
-            vb.etUAString.setText(settingsModel.uaStrings[selected])
-        } else {
-            vb.spTitles.setSelection(settingsModel.userAgentStringTitles.size - 1, false)
-            vb.llUAString.visibility = View.VISIBLE
-            vb.etUAString.setText(config.userAgentString.value ?: "")
-            vb.etUAString.requestFocus()
-        }
-        vb.spTitles.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+        (vb.spTitles as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(adapter)
+            if (selected != -1) {
+                actv.setText(adapter.getItem(selected).toString(), false)
+                vb.etUAString.setText(settingsModel.uaStrings[selected])
+            } else {
+                actv.setText(adapter.getItem(settingsModel.userAgentStringTitles.size - 1).toString(), false)
+                vb.llUAString.visibility = View.VISIBLE
+                vb.etUAString.setText(config.userAgentString.value ?: "")
+                vb.etUAString.requestFocus()
+            }
+            actv.setOnItemClickListener { _, _, position, _ ->
                 if (position == settingsModel.userAgentStringTitles.size - 1 && vb.llUAString.visibility == View.GONE) {
                     vb.llUAString.visibility = View.VISIBLE
                     vb.llUAString.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
                     vb.etUAString.requestFocus()
                 }
                 vb.etUAString.setText(settingsModel.uaStrings[position])
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-
             }
         }
     }
@@ -434,19 +425,18 @@ class MainSettingsView @JvmOverloads constructor(
         val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, Config.SearchEnginesTitles)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        vb.spEngine.adapter = adapter
-
-        if (selected != -1) {
-            vb.spEngine.setSelection(selected)
-            vb.etUrl.setText(Config.SearchEnginesURLs[selected])
-        } else {
-            vb.spEngine.setSelection(Config.SearchEnginesTitles.size - 1)
-            vb.llURL.visibility = View.VISIBLE
-            vb.etUrl.setText(config.searchEngineURL.value)
-            vb.etUrl.requestFocus()
-        }
-        vb.spEngine.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+        (vb.spEngine as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(adapter)
+            if (selected != -1) {
+                actv.setText(adapter.getItem(selected).toString(), false)
+                vb.etUrl.setText(Config.SearchEnginesURLs[selected])
+            } else {
+                actv.setText(adapter.getItem(Config.SearchEnginesTitles.size - 1).toString(), false)
+                vb.llURL.visibility = View.VISIBLE
+                vb.etUrl.setText(config.searchEngineURL.value)
+                vb.etUrl.requestFocus()
+            }
+            actv.setOnItemClickListener { _, _, position, _ ->
                 if (position == (Config.SearchEnginesTitles.size - 1)) {
                     if (vb.llURL.visibility == View.GONE) {
                         vb.llURL.visibility = View.VISIBLE
@@ -456,35 +446,33 @@ class MainSettingsView @JvmOverloads constructor(
                     }
                     vb.etUrl.setText(config.searchEngineURL.value)
                     vb.etUrl.requestFocus()
-                    return
+                    return@setOnItemClickListener
                 } else {
                     vb.llURL.visibility = View.GONE
                     vb.etUrl.setText(Config.SearchEnginesURLs[position])
                 }
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
         val homePageSpinnerAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, context.resources.getStringArray(R.array.home_page_modes))
         homePageSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        vb.spHomePage.adapter = homePageSpinnerAdapter
-        vb.spHomePage.setSelection(settingsModel.homePageMode.ordinal)
-
-        vb.spHomePage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+        (vb.spHomePage as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(homePageSpinnerAdapter)
+            actv.setText(homePageSpinnerAdapter.getItem(settingsModel.homePageMode.ordinal).toString(), false)
+            actv.setOnItemClickListener { _, _, position, _ ->
                 val homePageMode = Config.HomePageMode.entries[position]
                 vb.llCustomHomePage.visibility = if (homePageMode == Config.HomePageMode.CUSTOM) View.VISIBLE else View.GONE
                 vb.llHomePageLinksMode.visibility = if (homePageMode == Config.HomePageMode.HOME_PAGE) View.VISIBLE else View.GONE
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
         val homePageLinksSpinnerAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, context.resources.getStringArray(R.array.home_page_links_modes))
         homePageLinksSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        vb.spHomePageLinks.adapter = homePageLinksSpinnerAdapter
-        vb.spHomePageLinks.setSelection(settingsModel.homePageLinksMode.ordinal)
+        (vb.spHomePageLinks as? android.widget.AutoCompleteTextView)?.let { actv ->
+            actv.setAdapter(homePageLinksSpinnerAdapter)
+            actv.setText(homePageLinksSpinnerAdapter.getItem(settingsModel.homePageLinksMode.ordinal).toString(), false)
+            // no extra listener needed, just selection for save
+        }
 
         vb.etCustomHomePageUrl.setText(settingsModel.homePage)
     }
@@ -493,9 +481,19 @@ class MainSettingsView @JvmOverloads constructor(
         val customSearchEngineUrl = vb.etUrl.text.toString()
         settingsModel.setSearchEngineURL(customSearchEngineUrl)
 
-        val homePageMode = Config.HomePageMode.entries[vb.spHomePage.selectedItemPosition]
+        val homePageMode = (vb.spHomePage as? android.widget.AutoCompleteTextView)?.let { actv ->
+            val txt = actv.text.toString()
+            val arr = context.resources.getStringArray(R.array.home_page_modes)
+            val idx = arr.indexOf(txt).takeIf { it != -1 } ?: settingsModel.homePageMode.ordinal
+            Config.HomePageMode.entries[idx]
+        } ?: Config.HomePageMode.entries[0]
         val customHomePageURL = vb.etCustomHomePageUrl.text.toString()
-        val homePageLinksMode = Config.HomePageLinksMode.entries[vb.spHomePageLinks.selectedItemPosition]
+        val homePageLinksMode = (vb.spHomePageLinks as? android.widget.AutoCompleteTextView)?.let { actv ->
+            val txt = actv.text.toString()
+            val arr = context.resources.getStringArray(R.array.home_page_links_modes)
+            val idx = arr.indexOf(txt).takeIf { it != -1 } ?: settingsModel.homePageLinksMode.ordinal
+            Config.HomePageLinksMode.entries[idx]
+        } ?: Config.HomePageLinksMode.entries[0]
         settingsModel.setHomePageProperties(homePageMode, customHomePageURL, homePageLinksMode)
 
         val userAgent = vb.etUAString.text.toString().trim(' ')

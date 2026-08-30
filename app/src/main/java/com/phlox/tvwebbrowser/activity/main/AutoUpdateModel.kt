@@ -6,6 +6,7 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.phlox.tvwebbrowser.AppContext
 import com.phlox.tvwebbrowser.BuildConfig
 import com.phlox.tvwebbrowser.Config
@@ -74,7 +75,7 @@ class AutoUpdateModel: ActiveModel() {
                         updateChecker.downloadUpdate(activity, modelScope)
                     }
                 } else {
-                    AlertDialog.Builder(activity)
+                    MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.app_name)
                         .setMessage(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                             R.string.turn_on_unknown_sources_for_app else R.string.turn_on_unknown_sources)

@@ -33,7 +33,7 @@
             android:text="@string/toggle_ads_blocking"
             android:textSize="16sp"/>
 
-        <androidx.appcompat.widget.SwitchCompat
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/scShields"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

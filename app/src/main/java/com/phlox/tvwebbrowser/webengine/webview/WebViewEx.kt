@@ -40,6 +40,7 @@ import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
@@ -227,7 +228,7 @@ open class WebViewEx(context: Context, val callback: Callback, val jsInterface: 
 
                 val activity = callback.getActivity() ?: return
                 webPermissionsRequest = request
-                permRequestDialog = AlertDialog.Builder(activity)
+                permRequestDialog = MaterialAlertDialogBuilder(activity)
                         .setMessage(activity.getString(R.string.web_perm_request_confirmation, TextUtils.join("\n", request.resources)))
                         .setCancelable(false)
                         .setNegativeButton(R.string.deny) { _, _ ->
@@ -287,15 +288,15 @@ open class WebViewEx(context: Context, val callback: Callback, val jsInterface: 
                 val activity = this@WebViewEx.callback.getActivity() ?: return
                 geoPermissionOrigin = origin
                 geoPermissionsCallback = callback
-                permRequestDialog = AlertDialog.Builder(activity)
+                permRequestDialog = MaterialAlertDialogBuilder(activity)
                         .setMessage(activity.getString(R.string.web_perm_request_confirmation, activity.getString(R.string.location)))
                         .setCancelable(false)
-                        .setNegativeButton(R.string.deny) { dialog, which ->
+                        .setNegativeButton(R.string.deny) { _: DialogInterface, _: Int ->
                             geoPermissionsCallback!!.invoke(geoPermissionOrigin, false, false)
                             permRequestDialog = null
                             geoPermissionsCallback = null
                         }
-                        .setPositiveButton(R.string.allow) { dialog, which ->
+                        .setPositiveButton(R.string.allow) { _: DialogInterface, _: Int ->
                             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                 this@WebViewEx.callback.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), true)
                             } else {
@@ -466,7 +467,7 @@ open class WebViewEx(context: Context, val callback: Callback, val jsInterface: 
                     it.addView(userNameEdit)
                     it.addView(passwordEdit)
                 }
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.http_auth_title)
                     .setCancelable(false)
                     .setView(container)
