@@ -140,7 +140,9 @@ class ActionBar @JvmOverloads constructor(
         extendedAddressBarMode = true
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            if (child is ImageButton) {
+            // M3: ImageButton -> MaterialButton IconButton, keep same hide logic (was is ImageButton check, now also MaterialButton)
+            if (child is ImageButton || child is com.google.android.material.button.MaterialButton) {
+                // Keep CheckableImageButton (incognito) visible? No, original hid all ImageButton including incognito, so hide all buttons
                 child.visibility = GONE
             }
         }
@@ -153,7 +155,7 @@ class ActionBar @JvmOverloads constructor(
         extendedAddressBarMode = false
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            if (child is ImageButton) {
+            if (child is ImageButton || child is com.google.android.material.button.MaterialButton) {
                 child.visibility = VISIBLE
             }
         }

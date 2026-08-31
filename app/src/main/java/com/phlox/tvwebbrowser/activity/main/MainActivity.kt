@@ -584,7 +584,7 @@ open class MainActivity : AppCompatActivity(), ActionBar.Callback {
         vb.ibForward.isEnabled = tab.webEngine.canGoForward() == true
 
         val adblockEnabled = tab.adblock ?: config.adBlockEnabled
-        vb.ibAdBlock.setImageResource(if (adblockEnabled) R.drawable.ic_adblock_on else R.drawable.ic_adblock_off)
+        vb.ibAdBlock.setIconResource(if (adblockEnabled) R.drawable.ic_adblock_on else R.drawable.ic_adblock_off)
         vb.tvBlockedAdCounter.visibility = if (adblockEnabled && tab.blockedAds != 0) View.VISIBLE else View.GONE
         vb.tvBlockedAdCounter.text = tab.blockedAds.toString()
 
