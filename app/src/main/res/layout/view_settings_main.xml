@@ -24,6 +24,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/web_browser_engine_temporary_setting">
@@ -31,7 +32,10 @@
                 android:id="@+id/spWebEngine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -45,6 +49,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/choose_default_search_engine">
@@ -52,7 +57,10 @@
             android:id="@+id/spEngine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -94,6 +102,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/home_page">
@@ -101,7 +110,10 @@
             android:id="@+id/spHomePage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -153,6 +165,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/home_page_links">
@@ -160,7 +173,10 @@
                 android:id="@+id/spHomePageLinks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -174,6 +190,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/choose_user_agent_string">
@@ -181,7 +198,10 @@
             android:id="@+id/spTitles"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -379,6 +399,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/theme"
@@ -387,7 +408,10 @@
             android:id="@+id/spTheme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
   </LinearLayout>
 

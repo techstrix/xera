@@ -15,6 +15,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="dropdown_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/choose_default_search_engine">
@@ -22,7 +23,10 @@
             android:id="@+id/spEngine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
