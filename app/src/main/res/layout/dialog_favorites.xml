@@ -14,7 +14,6 @@
         <com.google.android.material.button.MaterialButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_bg_selector"
             android:text="@string/add"
             android:id="@+id/btnAdd"
             android:layout_weight="1"
@@ -29,7 +28,6 @@
         <com.google.android.material.button.MaterialButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_bg_selector"
             android:text="@string/edit"
             android:id="@+id/btnEdit"
             android:layout_weight="1"
