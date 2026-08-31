@@ -484,7 +484,14 @@ class MainSettingsView @JvmOverloads constructor(
     }
 
     fun save() {
-        val customSearchEngineUrl = vb.etUrl.text.toString()
+        val isCustomSearch = vb.llURL.visibility == View.VISIBLE
+        val customSearchEngineUrl = if (isCustomSearch) {
+            vb.etUrl.text.toString()
+        } else {
+            val txt = (vb.spEngine as? android.widget.AutoCompleteTextView)?.text?.toString() ?: ""
+            val idx = Config.SearchEnginesTitles.indexOf(txt).takeIf { it != -1 } ?: Config.SearchEnginesTitles.indexOf("Google")
+            if (idx in Config.SearchEnginesURLs.indices) Config.SearchEnginesURLs[idx] else vb.etUrl.text.toString()
+        }
         settingsModel.setSearchEngineURL(customSearchEngineUrl)
 
         val homePageMode = (vb.spHomePage as? android.widget.AutoCompleteTextView)?.let { actv ->
