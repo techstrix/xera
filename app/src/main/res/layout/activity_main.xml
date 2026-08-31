@@ -68,7 +68,8 @@
         android:visibility="gone">
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"            app:icon="@drawable/ic_baseline_add_box_24"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_add_box_24"
             android:layout_marginEnd="20dp"
             tools:ignore="ContentDescription" />
         <TextView
