@@ -38,6 +38,8 @@ object SearchEngineConfigDialogFactory {
 
         val spEngine = view.findViewById(R.id.spEngine) as android.widget.AutoCompleteTextView
         spEngine.setAdapter(adapter)
+        spEngine.setOnClickListener { spEngine.showDropDown() }
+        spEngine.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) spEngine.showDropDown() }
 
         if (selected != -1) {
             spEngine.setText(adapter.getItem(selected).toString(), false)

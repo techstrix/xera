@@ -86,6 +86,8 @@ class MainSettingsView @JvmOverloads constructor(
             actv.setAdapter(adapter)
             val sel = Config.SupportedWebEngines.indexOf(config.webEngine)
             if (sel != -1) actv.setText(adapter.getItem(sel).toString(), false)
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
             actv.setOnItemClickListener { _, _, position, _ ->
                 if (config.webEngine == Config.SupportedWebEngines[position]) return@setOnItemClickListener
                 if (Config.SupportedWebEngines[position] == Config.ENGINE_GECKO_VIEW && !Config.canRecommendGeckoView()) {
@@ -143,6 +145,8 @@ class MainSettingsView @JvmOverloads constructor(
         (vb.spTheme as? android.widget.AutoCompleteTextView)?.let { actv ->
             actv.setAdapter(adapter)
             actv.setText(adapter.getItem(config.theme.value.ordinal).toString(), false)
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
             actv.setOnItemClickListener { _, _, position, _ ->
                 if (config.theme.value.ordinal == position) return@setOnItemClickListener
                 config.theme.value = Config.Theme.values()[position]
@@ -405,6 +409,8 @@ class MainSettingsView @JvmOverloads constructor(
                 vb.etUAString.setText(config.userAgentString.value ?: "")
                 vb.etUAString.requestFocus()
             }
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
             actv.setOnItemClickListener { _, _, position, _ ->
                 if (position == settingsModel.userAgentStringTitles.size - 1 && vb.llUAString.visibility == View.GONE) {
                     vb.llUAString.visibility = View.VISIBLE
@@ -436,6 +442,8 @@ class MainSettingsView @JvmOverloads constructor(
                 vb.etUrl.setText(config.searchEngineURL.value)
                 vb.etUrl.requestFocus()
             }
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
             actv.setOnItemClickListener { _, _, position, _ ->
                 if (position == (Config.SearchEnginesTitles.size - 1)) {
                     if (vb.llURL.visibility == View.GONE) {
@@ -465,6 +473,8 @@ class MainSettingsView @JvmOverloads constructor(
                 vb.llCustomHomePage.visibility = if (mode == Config.HomePageMode.CUSTOM) View.VISIBLE else View.GONE
                 vb.llHomePageLinksMode.visibility = if (mode == Config.HomePageMode.HOME_PAGE) View.VISIBLE else View.GONE
             }
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
             actv.setOnItemClickListener { _, _, position, _ ->
                 val homePageMode = Config.HomePageMode.entries[position]
                 vb.llCustomHomePage.visibility = if (homePageMode == Config.HomePageMode.CUSTOM) View.VISIBLE else View.GONE
@@ -477,7 +487,8 @@ class MainSettingsView @JvmOverloads constructor(
         (vb.spHomePageLinks as? android.widget.AutoCompleteTextView)?.let { actv ->
             actv.setAdapter(homePageLinksSpinnerAdapter)
             actv.setText(homePageLinksSpinnerAdapter.getItem(settingsModel.homePageLinksMode.ordinal).toString(), false)
-            // no extra listener needed, just selection for save
+            actv.setOnClickListener { actv.showDropDown() }
+            actv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) actv.showDropDown() }
         }
 
         vb.etCustomHomePageUrl.setText(settingsModel.homePage)
